@@ -1,0 +1,48 @@
+<resources>
+    <string name="app_name">Expense Tracker</string>
+    <string name="expense">Expense</string>
+
+    <!-- Dialog Box -->
+    <string name="attention">Attention!</string>
+    <string name="back_button">Back</string>
+    <string name="delete">Delete</string>
+    <string name="delete_question">Are you sure you want to delete this expense?\nIt cannot be undone.</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+
+    <!-- Empty Expense Database -->
+    <string name="no_expense_database">There is no expense present. Add first.</string>
+
+    <!-- HomeScreen -->
+    <string name="expense_entry_button">Add expense</string>
+    <string name="expense_view">View expenses</string>
+    <string name="expense_view_1">Update expense</string>
+
+    <!-- General Details Screen -->
+    <string name="expense_view_month_button">View expenses per month</string>
+    <string name="expense_view_year_button">View expenses per year</string>
+    <string name="expenses_delete_all">Delete all expenses</string>
+
+    <!-- Titles -->
+    <string name="expense_update_title">Update expense</string>
+    <string name="expense_entry_title">Add expense</string>
+    <string name="expense_detail_title">Expense details</string>
+    <string name="expense_recent_title">Recent expense</string>
+    <string name="expense_yearly_title">Yearly expenses</string>
+    <string name="expense_monthly_title">Monthly expenses</string>
+
+    <!-- Add expense screen -->
+    <string name="expense_entry_name">Expense name</string>
+    <string name="expense_entry_type">Expense type</string>
+    <string name="expense_entry_amount">Expense amount</string>
+    <string name="expense_entry_date_added">Date added</string>
+    <string name="expense_entry_save">Save</string>
+    <string name="expense_entry_cancel">Cancel</string>
+
+    <!-- Expense detail screen -->
+    <string name="expense_detail_name">Expense name</string>
+    <string name="expense_detail_type">Expense type</string>
+    <string name="expense_detail_amount">Expense amount</string>
+    <string name="expense_detail_date_added">Date added</string>
+
+</resources>
