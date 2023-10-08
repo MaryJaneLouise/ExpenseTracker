@@ -1,7 +1,8 @@
-package com.mariejuana.expensetracker.ui.expense.monthly
+package com.mariejuana.expensetracker.ui.expense.monthly.per_month
 
 import android.icu.text.SimpleDateFormat
 import androidx.compose.runtime.mutableStateListOf
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mariejuana.expensetracker.data.expense.Expense
@@ -12,19 +13,20 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-data class MonthlyScreenUiState(val expenseList: List<Expense> = listOf())
+data class PerMonthScreenUiState(val expenseList: List<Expense> = listOf())
 
-class MonthlyScreenViewModel (expenseRepository: ExpenseRepository) : ViewModel() {
-    val monthlyScreenUiState: StateFlow<MonthlyScreenUiState> =
-        expenseRepository.getAllExpensesStream().map { MonthlyScreenUiState(it) }
+class PerMonthScreenViewModel (savedStateHandle: SavedStateHandle, expenseRepository: ExpenseRepository) : ViewModel() {
+    private val selectedMonth: Int = checkNotNull(savedStateHandle[PerMonthScreenDestination.itemIdArg])
+
+    val perMonthScreenUiState: StateFlow<PerMonthScreenUiState> =
+        expenseRepository.getAllExpensesStream().map { PerMonthScreenUiState(it) }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.Eagerly,
-                initialValue = MonthlyScreenUiState()
+                initialValue = PerMonthScreenUiState()
             )
 
     val currentYear = SimpleDateFormat("yyyy", Locale.getDefault()).format(Date())
@@ -39,8 +41,8 @@ class MonthlyScreenViewModel (expenseRepository: ExpenseRepository) : ViewModel(
         }
     }
 
-    val totalPriceForCurrentMonth: StateFlow<Double?> = flow {
-        val currentMonth = String.format("%02d", Calendar.getInstance().get(Calendar.MONTH) + 1)
+    val totalPriceForSelectedMonth: StateFlow<Double?> = flow {
+        val currentMonth = String.format("%02d", selectedMonth)
         val currentYear = SimpleDateFormat("yyyy", Locale.getDefault()).format(Date())
         emitAll(expenseRepository.getTotalAmountForMonth(currentMonth, currentYear))
     }.stateIn(viewModelScope, SharingStarted.Eagerly, 0.0)

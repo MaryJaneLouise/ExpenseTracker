@@ -1,4 +1,4 @@
-package com.mariejuana.expensetracker.data
+package com.mariejuana.expensetracker.data.expense
 
 import kotlinx.coroutines.flow.Flow
 

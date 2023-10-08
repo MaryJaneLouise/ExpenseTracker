@@ -8,6 +8,8 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.mariejuana.expensetracker.ui.expense.entry.EntryScreenViewModel
 import com.mariejuana.expensetracker.ui.expense.general_details.GeneralDetailsScreenViewModel
+import com.mariejuana.expensetracker.ui.expense.monthly.MonthlyScreenViewModel
+import com.mariejuana.expensetracker.ui.expense.monthly.per_month.PerMonthScreenViewModel
 import com.mariejuana.expensetracker.ui.expense.yearly.YearlyScreenViewModel
 import com.mariejuana.expensetracker.ui.home.HomeScreenViewModel
 
@@ -27,6 +29,14 @@ object AppViewModelProvider {
 
         initializer {
             YearlyScreenViewModel(expenseApplication().container.expenseRepository)
+        }
+
+        initializer {
+            MonthlyScreenViewModel(expenseApplication().container.expenseRepository)
+        }
+
+        initializer {
+            PerMonthScreenViewModel(this.createSavedStateHandle(), expenseApplication().container.expenseRepository)
         }
 
         initializer {

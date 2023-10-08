@@ -1,23 +1,17 @@
 package com.mariejuana.expensetracker.ui.expense.yearly
 
 import android.icu.text.SimpleDateFormat
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.mariejuana.expensetracker.data.Expense
-import com.mariejuana.expensetracker.data.ExpenseDao
-import com.mariejuana.expensetracker.data.ExpenseRepository
+import com.mariejuana.expensetracker.data.expense.Expense
+import com.mariejuana.expensetracker.data.expense.ExpenseRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.toList
-import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
@@ -32,22 +26,19 @@ class YearlyScreenViewModel(expenseRepository: ExpenseRepository) : ViewModel() 
                 initialValue = YearlyScreenUiState()
             )
 
-    val startYear = 2000
+    val startYear = 2015
     val endYear = SimpleDateFormat("yyyy", Locale.getDefault()).format(Date()).toInt()
+    val yearlyExpenses = mutableStateListOf<StateFlow<Double?>>()
 
-    val totalPriceForYears: StateFlow<List<Pair<String, Double?>>> = flow {
-        val yearlyTotals = mutableListOf<Pair<String, Double?>>()
-        (startYear..endYear).asFlow()
-            .flatMapMerge { year ->
-                expenseRepository.getTotalAmountForYear(year.toString())
-                    .map { totalAmount -> Pair(year.toString(), totalAmount) }
-            }
-            .collect { yearlyTotal ->
-                yearlyTotals.add(yearlyTotal)
-            }
-        emit(yearlyTotals)
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, listOf())
+    init {
+        for (year in startYear .. endYear) {
+            val totalPricePerYear: StateFlow<Double?> = flow {
+                emitAll(expenseRepository.getTotalAmountForYear(year.toString()))
+            }.stateIn(viewModelScope, SharingStarted.Eagerly, 0.0)
+            yearlyExpenses.add(totalPricePerYear)
+        }
 
+    }
 
     val totalPriceForCurrentYear: StateFlow<Double?> = flow {
         val currentYear = SimpleDateFormat("yyyy", Locale.getDefault()).format(Date())

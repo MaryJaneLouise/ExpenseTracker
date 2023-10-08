@@ -1,13 +1,10 @@
 package com.mariejuana.expensetracker.ui.home
 
 import android.icu.text.SimpleDateFormat
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.mariejuana.expensetracker.data.Expense
-import com.mariejuana.expensetracker.data.ExpenseDao
-import com.mariejuana.expensetracker.data.ExpenseRepository
+import com.mariejuana.expensetracker.data.expense.Expense
+import com.mariejuana.expensetracker.data.expense.ExpenseRepository
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emitAll

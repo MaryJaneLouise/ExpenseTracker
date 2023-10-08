@@ -1,11 +1,11 @@
-package com.mariejuana.expensetracker.data
+package com.mariejuana.expensetracker.data.expense
 
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.TypeConverter
 import androidx.room.TypeConverters
+import com.mariejuana.expensetracker.data.DateConverter
 
 @Database(entities = [Expense::class], version = 1)
 @TypeConverters(DateConverter::class)

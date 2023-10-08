@@ -1,4 +1,4 @@
-package com.mariejuana.expensetracker.data
+package com.mariejuana.expensetracker.data.expense
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

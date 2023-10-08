@@ -4,14 +4,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import java.sql.Time
 import java.text.NumberFormat
-import java.text.SimpleDateFormat
-import java.time.LocalDateTime
 import java.util.Date
-import java.util.Locale
-import com.mariejuana.expensetracker.data.Expense
-import com.mariejuana.expensetracker.data.ExpenseRepository
+import com.mariejuana.expensetracker.data.expense.Expense
+import com.mariejuana.expensetracker.data.expense.ExpenseRepository
 
 class EntryScreenViewModel (private val expenseRepository: ExpenseRepository) : ViewModel() {
     var expenseUiState by mutableStateOf(ExpenseUiState())
