@@ -1,29 +1,42 @@
-package com.mariejuana.expensetracker.ui.expense.general_details
+package com.mariejuana.expensetracker.ui.expense.details.item
 
 import android.icu.text.SimpleDateFormat
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mariejuana.expensetracker.data.expense.Expense
 import com.mariejuana.expensetracker.data.expense.ExpenseRepository
+import com.mariejuana.expensetracker.ui.expense.entry.ExpenseDetails
+import com.mariejuana.expensetracker.ui.expense.entry.toExpense
+import com.mariejuana.expensetracker.ui.expense.entry.toExpenseDetails
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-data class GeneralDetailsUiState(val expenseList: List<Expense> = listOf())
+data class ItemDetailsUiState(
+    val expenseDetails: ExpenseDetails = ExpenseDetails()
+)
 
-class GeneralDetailsScreenViewModel (expenseRepository: ExpenseRepository) : ViewModel() {
-    val generalDetailsUiState: StateFlow<GeneralDetailsUiState> =
-        expenseRepository.getAllExpensesStream().map { GeneralDetailsUiState(it) }
-            .stateIn(
+class ItemDetailsScreenViewModel (savedStateHandle: SavedStateHandle, private val expenseRepository: ExpenseRepository) : ViewModel() {
+    private val itemId: Int = checkNotNull(savedStateHandle[ItemDetailsDestination.itemIdArg])
+
+    val itemDetailsUiState: StateFlow<ItemDetailsUiState> =
+        expenseRepository.getExpenseStream(itemId)
+            .filterNotNull()
+            .map {
+                ItemDetailsUiState(expenseDetails = it.toExpenseDetails())
+            }.stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.Eagerly,
-                initialValue = GeneralDetailsUiState()
+                initialValue = ItemDetailsUiState()
             )
 
     val recentExpense: StateFlow<Expense?> = expenseRepository.getRecentExpenseStream()
@@ -39,4 +52,8 @@ class GeneralDetailsScreenViewModel (expenseRepository: ExpenseRepository) : Vie
         val currentYear = SimpleDateFormat("yyyy", Locale.getDefault()).format(Date())
         emitAll(expenseRepository.getTotalAmountForYear(currentYear))
     }.stateIn(viewModelScope, SharingStarted.Eagerly, 0.0)
+
+    suspend fun deleteItem() {
+        expenseRepository.deleteItem(itemDetailsUiState.value.expenseDetails.toExpense())
+    }
 }

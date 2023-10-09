@@ -1,8 +1,10 @@
 package com.mariejuana.expensetracker.data.expense
 
+import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
 interface ExpenseRepository {
+    // Getting the expenses
     fun getAllExpensesStream(): Flow<List<Expense>>
 
     fun getExpenseStream(id: Int): Flow<Expense?>
@@ -13,18 +15,22 @@ interface ExpenseRepository {
 
     fun getRecentExpenseStream(): Flow<Expense?>
 
-    /**
-     * Insert item in the data source
-     */
     suspend fun insertItem(expense: Expense)
 
-    /**
-     * Delete item from the data source
-     */
     suspend fun deleteItem(expense: Expense)
 
-    /**
-     * Update item in the data source
-     */
+    suspend fun deleteAllItem()
+
     suspend fun updateItem(expense: Expense)
+
+    // Getting the budget
+    fun getAllBudgetStream(): Flow<List<Budget>>
+
+    fun getCurrentBudgetStream(): Flow<Budget?>
+
+    fun getCurrentBudget(id: Int): Flow<Budget>
+
+    suspend fun insertBudget(budget: Budget)
+
+    suspend fun updateBudget(budget: Budget)
 }

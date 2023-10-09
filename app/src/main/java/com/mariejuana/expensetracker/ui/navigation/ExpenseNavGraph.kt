@@ -7,10 +7,14 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.mariejuana.expensetracker.ui.expense.AllExpensesScreen
+import com.mariejuana.expensetracker.ui.expense.AllExpensesScreenDestination
 import com.mariejuana.expensetracker.ui.expense.entry.ExpenseEntryDestination
 import com.mariejuana.expensetracker.ui.expense.entry.ExpenseEntryScreen
-import com.mariejuana.expensetracker.ui.expense.general_details.GeneralDetailsDestination
-import com.mariejuana.expensetracker.ui.expense.general_details.GeneralDetailsScreen
+import com.mariejuana.expensetracker.ui.expense.details.GeneralDetailsDestination
+import com.mariejuana.expensetracker.ui.expense.details.GeneralDetailsScreen
+import com.mariejuana.expensetracker.ui.expense.details.item.ExpenseDetailsScreen
+import com.mariejuana.expensetracker.ui.expense.details.item.ItemDetailsDestination
 import com.mariejuana.expensetracker.ui.expense.monthly.MonthlyDetailsScreen
 import com.mariejuana.expensetracker.ui.expense.monthly.MonthlyScreenDestination
 import com.mariejuana.expensetracker.ui.expense.monthly.per_month.PerMonthDetailsScreen
@@ -46,8 +50,16 @@ fun ExpenseNavHost(
             GeneralDetailsScreen(
                 navigateToExpensePerMonth = { navController. navigate(MonthlyScreenDestination.route)},
                 navigateToExpensePerYear = { navController.navigate(YearlyScreenDestination.route) },
+                navigateToAllExpense = { navController.navigate(AllExpensesScreenDestination.route) },
                 navigateBack = { navController.popBackStack() },
                 onNavigateUp = { navController.navigateUp() }
+            )
+        }
+        composable(route = AllExpensesScreenDestination.route) {
+            AllExpensesScreen(
+                navigateBack = { navController.popBackStack() },
+                onNavigateUp = { navController.navigateUp() },
+                navigateToExpenseDetails = { navController.navigate("${ItemDetailsDestination.route}/${it}")},
             )
         }
         composable(route = MonthlyScreenDestination.route) {
@@ -66,7 +78,19 @@ fun ExpenseNavHost(
             PerMonthDetailsScreen(
                 onNavigateUp = { navController.navigateUp() },
                 navigateBack = { navController.popBackStack() },
+                navigateToExpenseDetails = { navController.navigate("${ItemDetailsDestination.route}/${it}")},
                 navController = navController
+            )
+        }
+        composable(
+            route = ItemDetailsDestination.routeWithArgs,
+            arguments = listOf(navArgument(ItemDetailsDestination.itemIdArg) {
+                type = NavType.IntType
+            })
+        ) {
+            ExpenseDetailsScreen(
+                onNavigateUp = { navController.navigateUp() },
+                navigateBack = { navController.popBackStack() },
             )
         }
 

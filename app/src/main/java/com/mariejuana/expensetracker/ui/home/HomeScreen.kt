@@ -36,6 +36,7 @@ import com.mariejuana.expensetracker.ui.navigation.NavigationDestination
 import com.mariejuana.expensetracker.R
 import com.mariejuana.expensetracker.application.AppViewModelProvider
 import com.mariejuana.expensetracker.application.ExpenseTopAppBar
+import com.mariejuana.expensetracker.data.expense.Budget
 
 object HomeDestination : NavigationDestination {
     override val route = "home"
@@ -64,6 +65,13 @@ fun HomeScreen(
 
     val totalPriceForCurrentMonth = viewModel.totalPriceForCurrentMonth.collectAsState().value
 
+    val dummyBudget = Budget(
+        id = 0,
+        amount = 0.0,
+        date_added = Date(0),
+        date_updated = Date(0)
+    )
+
     val dummyExpense = Expense(
         id = 0,
         name = "",
@@ -73,6 +81,8 @@ fun HomeScreen(
     )
 
     val recentExpense by viewModel.recentExpense.collectAsState(initial = dummyExpense)
+
+    val currentBudget by viewModel.currentBudget.collectAsState(initial = dummyBudget)
 
     Scaffold (
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -95,13 +105,15 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
+                currentBudget?.let { BudgetCard(budget = it) }
+
                 Card(
                     modifier = Modifier
                         .weight(1f)
                         .padding(8.dp),
                 ) {
                     Text(
-                        text = "Current Budget P1212",
+                        text = "Current Budget:\n",
                         modifier = Modifier.padding(16.dp)
                     )
                 }
@@ -179,6 +191,27 @@ private fun RecentExpense (
                 )
             }
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun BudgetCard(
+    budget: Budget,
+    modifier: Modifier = Modifier
+) {
+    Card (
+        modifier = modifier,
+    )
+     {
+         Text(
+             text = "Current budget:",
+             modifier = Modifier.padding(16.dp)
+         )
+         Text(
+             text = NumberFormat.getCurrencyInstance().format(budget.amount),
+             modifier = Modifier.padding(16.dp)
+         )
     }
 }
 

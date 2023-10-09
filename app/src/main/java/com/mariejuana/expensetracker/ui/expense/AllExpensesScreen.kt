@@ -1,4 +1,4 @@
-package com.mariejuana.expensetracker.ui.expense.monthly.per_month
+package com.mariejuana.expensetracker.ui.expense
 
 import android.annotation.SuppressLint
 import android.icu.text.SimpleDateFormat
@@ -9,22 +9,25 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
@@ -37,15 +40,18 @@ import com.mariejuana.expensetracker.application.AppViewModelProvider
 import com.mariejuana.expensetracker.application.ExpenseTopAppBar
 import java.util.Calendar
 
-object PerMonthScreenDestination : NavigationDestination {
-    override val route = "per_month_expenses"
-    override val titleRes = R.string.expense_monthly_title
-    const val itemIdArg = "itemId"
-    val routeWithArgs = "$route/{$itemIdArg}"
+object AllExpensesScreenDestination : NavigationDestination {
+    override val route = "all_expenses"
+    override val titleRes = R.string.all_expenses_title
 }
 
 fun Date.toFormattedDateString(): String {
     val dateFormatter = java.text.SimpleDateFormat("MM/dd/yyyy", Locale.US)
+    return dateFormatter.format(this)
+}
+
+fun Date.toFormattedDateTimeString(): String {
+    val dateFormatter = java.text.SimpleDateFormat("MM/dd/yyyy hh:mm a", Locale.US)
     return dateFormatter.format(this)
 }
 
@@ -72,30 +78,29 @@ fun Date.toCalendar(): Calendar {
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "StateFlowValueCalledInComposition")
 @Composable
-fun PerMonthDetailsScreen (
+fun AllExpensesScreen (
     onNavigateUp: () -> Unit,
     navigateBack: () -> Unit,
     navigateToExpenseDetails: (Int) -> Unit,
-    navController: NavController,
     canNavigateBack: Boolean = true,
     modifier: Modifier = Modifier,
-    viewModel: PerMonthScreenViewModel = viewModel(factory = AppViewModelProvider.Factory),
+    viewModel: AllExpensesScreenViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val perMonthExpense by viewModel.perMonthScreenUiState.collectAsState()
     val currentMonth = SimpleDateFormat("MMM", Locale.getDefault()).format(Date())
     val currentYear = SimpleDateFormat("yyyy", Locale.getDefault()).format(Date())
 
+    val textState = remember { mutableStateOf(TextFieldValue("")) }
+
+    val searchedText = textState.value.text
+
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-
-    val totalPriceForSelectedMonth = viewModel.totalPriceForSelectedMonth.collectAsState().value
-
-    val month = navController.currentBackStackEntry?.arguments?.getInt(PerMonthScreenDestination.itemIdArg)
 
     Scaffold (
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             ExpenseTopAppBar(
-                title = stringResource(PerMonthScreenDestination.titleRes),
+                title = stringResource(AllExpensesScreenDestination.titleRes),
                 canNavigateBack = canNavigateBack,
                 scrollBehavior = scrollBehavior,
                 navigateUp = navigateBack
@@ -108,30 +113,17 @@ fun PerMonthDetailsScreen (
                 .padding(innerPadding)
                 .fillMaxWidth()
         ) {
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-            ) {
-                Text(
-                    text = "${month?.toFormattedFullMonthString()} ${currentYear} expenses:",
-                    modifier = Modifier.padding(16.dp)
-                )
-
-                Text(
-                    text = NumberFormat.getCurrencyInstance().format(totalPriceForSelectedMonth),
-                    modifier = Modifier.padding(16.dp)
-                )
-            }
             Column (
             ) {
+                SearchView(state = textState, placeHolder = "Search items")
+
                 LazyColumn() {
                     items(
                         items = perMonthExpense.expenseList
                             .sortedByDescending { it.date_added }
                             .filter {
-                            it.date_added.toCalendar().get(Calendar.MONTH) + 1 == month
-                        },
+                                it.name.contains(searchedText, ignoreCase = true)
+                            },
                         key = { it.id }
                     ) { item ->
                         Card(
@@ -148,7 +140,7 @@ fun PerMonthDetailsScreen (
                                         text = item.name,
                                     )
                                     Text(
-                                        text = item.date_added.toFormattedDateString(),
+                                        text = item.date_added.toFormattedDateTimeString(),
                                     )
                                 }
                                 Spacer(Modifier.weight(1f))
@@ -162,4 +154,22 @@ fun PerMonthDetailsScreen (
             }
         }
     }
+}
+
+@Composable
+fun SearchView(
+    modifier: Modifier = Modifier,
+    state: MutableState<TextFieldValue>,
+    placeHolder: String
+) {
+    OutlinedTextField(
+        value = state.value,
+        onValueChange = { value ->
+            state.value = value
+        },
+        label = { Text(text = placeHolder) },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(dimensionResource(R.dimen.padding_large))
+    )
 }

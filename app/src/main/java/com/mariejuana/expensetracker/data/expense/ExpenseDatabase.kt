@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.mariejuana.expensetracker.data.DateConverter
 
-@Database(entities = [Expense::class], version = 1)
+@Database(entities = [Expense::class, Budget::class,], version = 2)
 @TypeConverters(DateConverter::class)
 abstract class ExpenseDatabase :  RoomDatabase() {
     abstract fun expenseDao(): ExpenseDao

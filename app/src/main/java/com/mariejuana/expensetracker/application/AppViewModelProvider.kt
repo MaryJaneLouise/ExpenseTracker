@@ -6,8 +6,10 @@ import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.mariejuana.expensetracker.ui.expense.AllExpensesScreenViewModel
 import com.mariejuana.expensetracker.ui.expense.entry.EntryScreenViewModel
-import com.mariejuana.expensetracker.ui.expense.general_details.GeneralDetailsScreenViewModel
+import com.mariejuana.expensetracker.ui.expense.details.GeneralDetailsScreenViewModel
+import com.mariejuana.expensetracker.ui.expense.details.item.ItemDetailsScreenViewModel
 import com.mariejuana.expensetracker.ui.expense.monthly.MonthlyScreenViewModel
 import com.mariejuana.expensetracker.ui.expense.monthly.per_month.PerMonthScreenViewModel
 import com.mariejuana.expensetracker.ui.expense.yearly.YearlyScreenViewModel
@@ -28,6 +30,10 @@ object AppViewModelProvider {
         }
 
         initializer {
+            AllExpensesScreenViewModel(expenseApplication().container.expenseRepository)
+        }
+
+        initializer {
             YearlyScreenViewModel(expenseApplication().container.expenseRepository)
         }
 
@@ -37,6 +43,10 @@ object AppViewModelProvider {
 
         initializer {
             PerMonthScreenViewModel(this.createSavedStateHandle(), expenseApplication().container.expenseRepository)
+        }
+
+        initializer {
+            ItemDetailsScreenViewModel(this.createSavedStateHandle(), expenseApplication().container.expenseRepository)
         }
 
         initializer {

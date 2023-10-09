@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ExpenseDao {
+    // Getting all of the expenses
     @Query("SELECT * from expense ORDER BY date_added ASC")
     fun getAllExpenses(): Flow<List<Expense>>
 
@@ -35,4 +36,24 @@ interface ExpenseDao {
 
     @Delete
     suspend fun delete(expense: Expense)
+
+    @Query("DELETE FROM expense")
+    suspend fun deleteAll()
+
+
+    // Getting the current budget
+    @Query("SELECT * from budget ORDER BY date_added ASC")
+    fun getAllBudget(): Flow<List<Budget>>
+
+    @Query("SELECT * from budget WHERE id = :id")
+    fun getCurrentBudget(id: Int): Flow<Budget>
+
+    @Query("SELECT * from budget")
+    fun getBudget(): Flow<Budget?>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertBudget(budget: Budget)
+
+    @Update
+    suspend fun updateBudget(budget: Budget)
 }

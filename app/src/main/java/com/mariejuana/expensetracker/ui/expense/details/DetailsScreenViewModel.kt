@@ -1,11 +1,11 @@
-package com.mariejuana.expensetracker.ui.home
+package com.mariejuana.expensetracker.ui.expense.details
 
 import android.icu.text.SimpleDateFormat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mariejuana.expensetracker.data.expense.Budget
 import com.mariejuana.expensetracker.data.expense.Expense
 import com.mariejuana.expensetracker.data.expense.ExpenseRepository
+import com.mariejuana.expensetracker.ui.expense.entry.toExpense
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emitAll
@@ -16,30 +16,18 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-data class HomeUiState(val expenseList: List<Expense> = listOf())
-data class HomeUiStateBudget(val budget: List<Budget> = listOf())
+data class GeneralDetailsUiState(val expenseList: List<Expense> = listOf())
 
-class HomeScreenViewModel(expenseRepository: ExpenseRepository) : ViewModel() {
-    val homeUiState: StateFlow<HomeUiState> =
-        expenseRepository.getAllExpensesStream().map { HomeUiState(it) }
+class GeneralDetailsScreenViewModel (private val expenseRepository: ExpenseRepository) : ViewModel() {
+    val generalDetailsUiState: StateFlow<GeneralDetailsUiState> =
+        expenseRepository.getAllExpensesStream().map { GeneralDetailsUiState(it) }
             .stateIn(
                 scope = viewModelScope,
                 started = SharingStarted.Eagerly,
-                initialValue = HomeUiState()
-            )
-
-    val homeUiStateBudget: StateFlow<HomeUiStateBudget> =
-        expenseRepository.getAllBudgetStream().map { HomeUiStateBudget(it) }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.Eagerly,
-                initialValue = HomeUiStateBudget()
+                initialValue = GeneralDetailsUiState()
             )
 
     val recentExpense: StateFlow<Expense?> = expenseRepository.getRecentExpenseStream()
-        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
-
-    val currentBudget: StateFlow<Budget?> = expenseRepository.getCurrentBudgetStream()
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     val totalPriceForCurrentMonth: StateFlow<Double?> = flow {
@@ -52,4 +40,8 @@ class HomeScreenViewModel(expenseRepository: ExpenseRepository) : ViewModel() {
         val currentYear = SimpleDateFormat("yyyy", Locale.getDefault()).format(Date())
         emitAll(expenseRepository.getTotalAmountForYear(currentYear))
     }.stateIn(viewModelScope, SharingStarted.Eagerly, 0.0)
+
+    suspend fun deleteAllItem() {
+        expenseRepository.deleteAllItem()
+    }
 }
