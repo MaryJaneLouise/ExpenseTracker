@@ -10,6 +10,8 @@ import java.text.NumberFormat
 import java.util.Date
 import com.mariejuana.expensetracker.data.expense.Expense
 import com.mariejuana.expensetracker.data.expense.ExpenseRepository
+import com.mariejuana.expensetracker.data.expense.TransactionHistory
+import com.mariejuana.expensetracker.ui.expense.entry.toTransaction
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
@@ -23,21 +25,19 @@ class BudgetEntryScreenViewModel (private val expenseRepository: ExpenseReposito
 
     private val budgetId: Int = 1
 
-    private val amount: Double = 0.0
-
-
-    fun updateUiState(budgetDetails: BudgetDetails) {
+    fun updateUiState(budgetDetails: BudgetDetails, transactionDetails: TransactionDetails) {
         budgetUiState =
             BudgetUiState(
                 budgetDetails = budgetDetails,
+                transactionDetails = transactionDetails,
                 isEntryValid = validateInput(budgetDetails)
             )
     }
 
     suspend fun saveBudget() {
-
         if (validateInput()) {
             expenseRepository.insertBudget(budgetUiState.budgetDetails.toBudget())
+            expenseRepository.insertTransaction(budgetUiState.transactionDetails.toTransaction())
         }
     }
 
@@ -59,6 +59,7 @@ class BudgetEntryScreenViewModel (private val expenseRepository: ExpenseReposito
 
         if (validateInput()) {
             expenseRepository.updateBudget(updatedBudgetUiState.budgetDetails.toBudget())
+            expenseRepository.insertTransaction(budgetUiState.transactionDetails.toTransaction())
         }
     }
 
@@ -73,8 +74,10 @@ class BudgetEntryScreenViewModel (private val expenseRepository: ExpenseReposito
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 }
 
+// For the Budget
 data class BudgetUiState(
     val budgetDetails: BudgetDetails = BudgetDetails(),
+    val transactionDetails: TransactionDetails = TransactionDetails(),
     val isEntryValid: Boolean = false
 )
 
@@ -101,3 +104,34 @@ fun Budget.toBudgetDetails(): BudgetDetails = BudgetDetails(
 fun Budget.formattedAmount(): String {
     return NumberFormat.getCurrencyInstance().format(amount)
 }
+
+
+// For the transaction history
+data class TransactionUiState(
+    val transactionDetails: TransactionDetails = TransactionDetails(),
+    val isEntryValid: Boolean = false
+)
+
+data class TransactionDetails(
+    val id: Int = 0,
+    val name: String = "",
+    val type: String = "",
+    val amount: String = "",
+    val date: Date = Date(),
+)
+
+fun TransactionDetails.toTransaction(): TransactionHistory = TransactionHistory(
+    id = id,
+    name = "Added budget",
+    type = "budget",
+    amount = amount.toDoubleOrNull() ?: 0.0,
+    date = date
+)
+
+fun TransactionDetails.toTransactionDetails(): TransactionDetails = TransactionDetails(
+    id = id,
+    name = name,
+    type = type,
+    amount = amount.toString(),
+    date = date
+)

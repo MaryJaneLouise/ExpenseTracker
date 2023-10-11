@@ -55,9 +55,9 @@ fun YearlyDetailsScreen (
     val currentMonth = SimpleDateFormat("MMM", Locale.getDefault()).format(Date())
     val currentYear = SimpleDateFormat("yyyy", Locale.getDefault()).format(Date()).toInt()
 
-    val startYear = 2000
+    val startYear = 2014
     val endYear = SimpleDateFormat("yyyy", Locale.getDefault()).format(Date()).toInt()
-
+    val totalYears = endYear - startYear
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
     val totalPriceForCurrentYear = viewModel.totalPriceForCurrentYear.collectAsState().value
@@ -98,8 +98,8 @@ fun YearlyDetailsScreen (
             Column (
                 modifier = Modifier.verticalScroll(rememberScrollState())
             ) {
-                for (year in 9 downTo 1) {
-                    val actualYear = currentYear + year - 9
+                for (year in totalYears downTo 1) {
+                    val actualYear = currentYear + year - totalYears
                     val totalPricePerYear = viewModel.yearlyExpenses[year - 1]
                     val totalPrice = totalPricePerYear.value
                     val formattedTotalPrice =

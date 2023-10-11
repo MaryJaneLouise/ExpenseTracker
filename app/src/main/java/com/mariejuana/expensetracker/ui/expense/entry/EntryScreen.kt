@@ -112,7 +112,7 @@ fun ExpenseEntryScreen(
 @Composable
 fun ExpenseEntryBody (
     expenseUiState: ExpenseUiState,
-    onItemValueChange: (ExpenseDetails) -> Unit,
+    onItemValueChange: (ExpenseDetails, TransactionDetails) -> Unit,
     onSaveClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -122,6 +122,7 @@ fun ExpenseEntryBody (
     ) {
         ExpenseInputForm (
             expenseDetails = expenseUiState.expenseDetails,
+            transactionDetails = expenseUiState.transactionDetails,
             onValueChange = onItemValueChange,
             modifier = Modifier.fillMaxWidth()
         )
@@ -140,8 +141,9 @@ fun ExpenseEntryBody (
 @Composable
 fun ExpenseInputForm(
     expenseDetails: ExpenseDetails,
+    transactionDetails: TransactionDetails,
     modifier: Modifier = Modifier,
-    onValueChange: (ExpenseDetails) -> Unit = {},
+    onValueChange: (ExpenseDetails, TransactionDetails) -> Unit = { _, _ -> },
     enabled: Boolean = true
 ) {
     Column (
@@ -150,7 +152,7 @@ fun ExpenseInputForm(
     ) {
         OutlinedTextField(
             value = expenseDetails.name,
-            onValueChange = { onValueChange(expenseDetails.copy(name = it)) },
+            onValueChange = { onValueChange(expenseDetails.copy(name = it), transactionDetails.copy(name = it)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
             label = { Text(stringResource(R.string.expense_entry_name)) },
             colors = OutlinedTextFieldDefaults.colors(
@@ -166,7 +168,7 @@ fun ExpenseInputForm(
         )
         OutlinedTextField(
             value = expenseDetails.type,
-            onValueChange = { onValueChange(expenseDetails.copy(type = it)) },
+            onValueChange = { onValueChange(expenseDetails.copy(type = it), transactionDetails.copy(type = it)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
             label = { Text(stringResource(R.string.expense_entry_type)) },
             colors = OutlinedTextFieldDefaults.colors(
@@ -182,7 +184,7 @@ fun ExpenseInputForm(
         )
         OutlinedTextField(
             value = expenseDetails.amount,
-            onValueChange = { onValueChange(expenseDetails.copy(amount = it)) },
+            onValueChange = { onValueChange(expenseDetails.copy(amount = it), transactionDetails.copy(amount = it))},
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             label = { Text(stringResource(R.string.expense_entry_amount)) },
             colors = OutlinedTextFieldDefaults.colors(
@@ -197,25 +199,5 @@ fun ExpenseInputForm(
             enabled = enabled,
             singleLine = true
         )
-    }
-}
-
-@Composable
-fun showToast(
-    modifier: Modifier = Modifier
-) {
-    val context = LocalContext.current
-
-}
-@Preview(showBackground = true)
-@Composable
-private fun ItemEntryScreenPreview() {
-    ExpenseTrackerTheme {
-        ExpenseEntryBody(
-            expenseUiState = ExpenseUiState(
-            ExpenseDetails(
-                name = "Test name", amount = "10.00", type = "5"
-            )
-        ), onItemValueChange = {}, onSaveClick = {})
     }
 }

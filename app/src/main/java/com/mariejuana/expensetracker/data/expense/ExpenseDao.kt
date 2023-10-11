@@ -56,4 +56,18 @@ interface ExpenseDao {
 
     @Update
     suspend fun updateBudget(budget: Budget)
+
+
+    // Getting the transaction history
+    @Query("SELECT * FROM transaction_history")
+    fun getAllTransaction(): Flow<List<TransactionHistory>>
+
+    @Query("SELECT * FROM transaction_history WHERE id = :id")
+    fun getCurrentTransaction(id: Int): Flow<TransactionHistory>
+
+    @Query("SELECT * FROM transaction_history")
+    fun getTransaction(): Flow<TransactionHistory?>
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertTransaction(transactionHistory: TransactionHistory)
 }

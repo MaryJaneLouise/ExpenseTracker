@@ -101,7 +101,7 @@ fun BudgetEntryScreen(
 @Composable
 fun BudgetEntryBody (
     budgetUiState: BudgetUiState,
-    onItemValueChange: (BudgetDetails) -> Unit,
+    onItemValueChange: (BudgetDetails, TransactionDetails) -> Unit,
     onSaveClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -111,6 +111,7 @@ fun BudgetEntryBody (
     ) {
         BudgetInputForm (
             budgetDetails = budgetUiState.budgetDetails,
+            transactionDetails = budgetUiState.transactionDetails,
             onValueChange = onItemValueChange,
             modifier = Modifier.fillMaxWidth()
         )
@@ -129,8 +130,9 @@ fun BudgetEntryBody (
 @Composable
 fun BudgetInputForm(
     budgetDetails: BudgetDetails,
+    transactionDetails: TransactionDetails,
     modifier: Modifier = Modifier,
-    onValueChange: (BudgetDetails) -> Unit = {},
+    onValueChange: (BudgetDetails, TransactionDetails) -> Unit = { _, _ -> },
     enabled: Boolean = true
 ) {
     Column (
@@ -139,7 +141,7 @@ fun BudgetInputForm(
     ) {
         OutlinedTextField(
             value = budgetDetails.amount,
-            onValueChange = { onValueChange(budgetDetails.copy(amount = it)) },
+            onValueChange = { onValueChange(budgetDetails.copy(amount = it), transactionDetails.copy(amount = it)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             label = { Text(stringResource(R.string.budget_title)) },
             colors = OutlinedTextFieldDefaults.colors(

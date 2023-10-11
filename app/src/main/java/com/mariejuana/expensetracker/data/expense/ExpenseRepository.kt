@@ -23,6 +23,7 @@ interface ExpenseRepository {
 
     suspend fun updateItem(expense: Expense)
 
+
     // Getting the budget
     fun getAllBudgetStream(): Flow<List<Budget>>
 
@@ -33,4 +34,14 @@ interface ExpenseRepository {
     suspend fun insertBudget(budget: Budget)
 
     suspend fun updateBudget(budget: Budget)
+
+
+    // Getting the transaction history
+    fun getAllTransactionStream(): Flow<List<TransactionHistory>>
+
+    fun getCurrentTransactionStream(): Flow<TransactionHistory?>
+
+    fun getCurrentTransaction(id: Int): Flow<TransactionHistory>
+
+    suspend fun insertTransaction(transactionHistory: TransactionHistory)
 }

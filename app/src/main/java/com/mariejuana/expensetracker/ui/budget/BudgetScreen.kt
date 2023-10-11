@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -35,6 +37,7 @@ import java.util.Locale
 import com.mariejuana.expensetracker.application.ExpenseTopAppBar
 import com.mariejuana.expensetracker.R
 import com.mariejuana.expensetracker.application.AppViewModelProvider
+import com.mariejuana.expensetracker.ui.expense.toFormattedDateTimeString
 import com.mariejuana.expensetracker.ui.navigation.NavigationDestination
 import java.text.NumberFormat
 
@@ -55,6 +58,7 @@ fun BudgetScreen(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val currentBudget by viewModel.currentBudget.collectAsState()
+    val allTransactionHistory by viewModel.transactionFragmentUiState.collectAsState()
 
     Scaffold (
         topBar = {
@@ -84,7 +88,7 @@ fun BudgetScreen(
                         text = "Current Budget:\n",
                         modifier = Modifier.padding(16.dp)
                     )
-                    if (viewModel.currentBudget.value == null) {
+                    if (currentBudget?.amount == null) {
                         Text(
                             text = NumberFormat.getCurrencyInstance().format(0.0),
                             modifier = Modifier.padding(16.dp)
@@ -97,7 +101,6 @@ fun BudgetScreen(
                     }
                 }
             }
-
             Row (
                 modifier = Modifier.fillMaxWidth(),
             ) {
@@ -108,6 +111,57 @@ fun BudgetScreen(
                     Text(
                         text = stringResource(id = R.string.budget_add_button)
                     )
+                }
+            }
+
+            Row (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+            ) {
+                Text(text = "Transaction History")
+            }
+
+            LazyColumn() {
+                items(
+                    items = allTransactionHistory.transactionList
+                        .sortedByDescending { it.date },
+                    key = { it.id }
+                ) { item ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(dimensionResource(id = R.dimen.padding_medium)),
+                        ) {
+                            Column {
+                                Text(
+                                    text = item.name,
+                                )
+                                Text(
+                                    text = item.date.toFormattedDateTimeString(),
+                                )
+                            }
+                            Spacer(Modifier.weight(1f))
+                            if (item.type == "expense") {
+                                Text(
+                                    text = "- ${
+                                        NumberFormat.getCurrencyInstance().format(item.amount)
+                                    }",
+                                )
+                            } else if (item.type == "budget") {
+                                Text(
+                                    text = "+ ${
+                                        NumberFormat.getCurrencyInstance().format(item.amount)
+                                    }",
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }
