@@ -38,6 +38,11 @@
     <string name="budget_update_title">Update budget</string>
     <string name="budget_entry_title">Add budget</string>
     <string name="budget_title">Current budget</string>
+    <string name="current_budget_title">Current budget</string>
+
+    <!-- Current budget screen -->
+    <string name="budget_add_button">Add budget</string>
+    <string name="budget_update_button">Update budget</string>
 
     <!-- Add expense screen -->
     <string name="expense_entry_name">Expense name</string>

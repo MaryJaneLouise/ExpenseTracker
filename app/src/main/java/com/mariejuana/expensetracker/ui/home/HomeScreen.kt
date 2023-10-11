@@ -49,11 +49,12 @@ fun Date.toFormattedDateString(): String {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "StateFlowValueCalledInComposition")
 @Composable
 fun HomeScreen(
     navigateToExpenseEntry: () -> Unit,
     navigateToViewExpense: () -> Unit,
+    navigateToCurrentBudget: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeScreenViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
@@ -68,8 +69,6 @@ fun HomeScreen(
     val dummyBudget = Budget(
         id = 0,
         amount = 0.0,
-        date_added = Date(0),
-        date_updated = Date(0)
     )
 
     val dummyExpense = Expense(
@@ -82,7 +81,7 @@ fun HomeScreen(
 
     val recentExpense by viewModel.recentExpense.collectAsState(initial = dummyExpense)
 
-    val currentBudget by viewModel.currentBudget.collectAsState(initial = dummyBudget)
+    val currentBudget by viewModel.currentBudget.collectAsState()
 
     Scaffold (
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -105,17 +104,27 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                currentBudget?.let { BudgetCard(budget = it) }
-
                 Card(
                     modifier = Modifier
                         .weight(1f)
                         .padding(8.dp),
+                    onClick = navigateToCurrentBudget
                 ) {
                     Text(
                         text = "Current Budget:\n",
                         modifier = Modifier.padding(16.dp)
                     )
+                    if (currentBudget == null) {
+                        Text(
+                            text = NumberFormat.getCurrencyInstance().format(0.0),
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    } else {
+                        Text(
+                            text = NumberFormat.getCurrencyInstance().format(currentBudget?.amount ?: 0.0),
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
                 }
 
                 Card(
@@ -201,7 +210,7 @@ fun BudgetCard(
     modifier: Modifier = Modifier
 ) {
     Card (
-        modifier = modifier,
+        modifier = modifier.fillMaxWidth(),
     )
      {
          Text(

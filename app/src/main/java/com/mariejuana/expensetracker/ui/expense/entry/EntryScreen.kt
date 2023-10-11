@@ -16,14 +16,25 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import android.widget.DatePicker
+import android.widget.Toast
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -41,6 +52,7 @@ import com.mariejuana.expensetracker.R
 import com.mariejuana.expensetracker.application.AppViewModelProvider
 import com.mariejuana.expensetracker.ui.navigation.NavigationDestination
 import com.mariejuana.expensetracker.ui.theme.ExpenseTrackerTheme
+import java.text.NumberFormat
 
 object ExpenseEntryDestination : NavigationDestination {
     override val route = "expense_entry"
@@ -48,7 +60,7 @@ object ExpenseEntryDestination : NavigationDestination {
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter", "StateFlowValueCalledInComposition")
 @Composable
 fun ExpenseEntryScreen(
     navigateBack: () -> Unit,
@@ -57,6 +69,9 @@ fun ExpenseEntryScreen(
     viewModel: EntryScreenViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val currentBudget by viewModel.currentBudget.collectAsState()
+    var showSnackbar by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     Scaffold (
         topBar = {
@@ -71,16 +86,25 @@ fun ExpenseEntryScreen(
             expenseUiState = viewModel.expenseUiState,
             onItemValueChange = viewModel::updateUiState,
             onSaveClick = {
-                coroutineScope.launch {
-                viewModel.saveExpense()
-                navigateBack()
+                val newAmount = viewModel.expenseUiState.expenseDetails.amount.toDouble()
+
+                if ((currentBudget?.amount?.minus(newAmount))!! >= 0) {
+                    coroutineScope.launch {
+                        viewModel.saveExpense(newAmount)
+                        navigateBack()
+                    }
                 }
+                else {
+                    Toast.makeText(context, "Please add more budget before adding expenses again.", Toast.LENGTH_LONG).show()
+                }
+
             },
             modifier = Modifier
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
                 .fillMaxWidth()
         )
+
 
     }
 }
@@ -176,6 +200,13 @@ fun ExpenseInputForm(
     }
 }
 
+@Composable
+fun showToast(
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+
+}
 @Preview(showBackground = true)
 @Composable
 private fun ItemEntryScreenPreview() {

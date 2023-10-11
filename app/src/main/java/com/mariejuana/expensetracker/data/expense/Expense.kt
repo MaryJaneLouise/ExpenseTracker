@@ -16,11 +16,9 @@ data class Expense(
 
 @Entity(tableName = "budget")
 data class Budget(
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val amount: Double,
-    val date_added: Date,
-    val date_updated: Date,
 )
 
 @Entity(tableName = "transaction_history")

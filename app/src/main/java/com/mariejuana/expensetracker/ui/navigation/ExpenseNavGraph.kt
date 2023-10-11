@@ -7,6 +7,10 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.mariejuana.expensetracker.ui.budget.BudgetDestination
+import com.mariejuana.expensetracker.ui.budget.BudgetScreen
+import com.mariejuana.expensetracker.ui.budget.entry.BudgetEntryDestination
+import com.mariejuana.expensetracker.ui.budget.entry.BudgetEntryScreen
 import com.mariejuana.expensetracker.ui.expense.AllExpensesScreen
 import com.mariejuana.expensetracker.ui.expense.AllExpensesScreenDestination
 import com.mariejuana.expensetracker.ui.expense.entry.ExpenseEntryDestination
@@ -37,7 +41,21 @@ fun ExpenseNavHost(
         composable(route = HomeDestination.route) {
             HomeScreen(
                 navigateToExpenseEntry = { navController.navigate(ExpenseEntryDestination.route) },
-                navigateToViewExpense = { navController.navigate(GeneralDetailsDestination.route) }
+                navigateToViewExpense = { navController.navigate(GeneralDetailsDestination.route) },
+                navigateToCurrentBudget = { navController.navigate(BudgetDestination.route) }
+            )
+        }
+        composable(route = BudgetDestination.route) {
+            BudgetScreen(
+                navigateBack = { navController.popBackStack() },
+                onNavigateUp = { navController.navigateUp() },
+                navigateToAddBudget = { navController.navigate(BudgetEntryDestination.route) }
+            )
+        }
+        composable(route = BudgetEntryDestination.route) {
+            BudgetEntryScreen(
+                navigateBack = { navController.popBackStack() },
+                onNavigateUp = { navController.navigateUp() },
             )
         }
         composable(route = ExpenseEntryDestination.route) {

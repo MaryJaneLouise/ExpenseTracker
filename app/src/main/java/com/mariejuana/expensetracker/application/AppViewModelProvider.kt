@@ -6,6 +6,8 @@ import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.CreationExtras
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.mariejuana.expensetracker.ui.budget.BudgetScreenViewModel
+import com.mariejuana.expensetracker.ui.budget.entry.BudgetEntryScreenViewModel
 import com.mariejuana.expensetracker.ui.expense.AllExpensesScreenViewModel
 import com.mariejuana.expensetracker.ui.expense.entry.EntryScreenViewModel
 import com.mariejuana.expensetracker.ui.expense.details.GeneralDetailsScreenViewModel
@@ -24,6 +26,13 @@ object AppViewModelProvider {
 //                inventoryApplication().container.itemsRepository
 //            )
 //        }
+        initializer {
+            BudgetScreenViewModel(expenseApplication().container.expenseRepository)
+        }
+
+        initializer {
+            BudgetEntryScreenViewModel(expenseApplication().container.expenseRepository)
+        }
 
         initializer {
             GeneralDetailsScreenViewModel(expenseApplication().container.expenseRepository)

@@ -42,7 +42,7 @@ interface ExpenseDao {
 
 
     // Getting the current budget
-    @Query("SELECT * from budget ORDER BY date_added ASC")
+    @Query("SELECT * from budget")
     fun getAllBudget(): Flow<List<Budget>>
 
     @Query("SELECT * from budget WHERE id = :id")

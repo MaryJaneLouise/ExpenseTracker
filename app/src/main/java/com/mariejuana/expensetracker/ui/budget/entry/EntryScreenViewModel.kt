@@ -4,15 +4,27 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.mariejuana.expensetracker.data.expense.Budget
 import java.text.NumberFormat
 import java.util.Date
 import com.mariejuana.expensetracker.data.expense.Expense
 import com.mariejuana.expensetracker.data.expense.ExpenseRepository
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
-class BudgetScreenViewModel (private val expenseRepository: ExpenseRepository) : ViewModel() {
+class BudgetEntryScreenViewModel (private val expenseRepository: ExpenseRepository) : ViewModel() {
     var budgetUiState by mutableStateOf(BudgetUiState())
         private set
+
+    private val budgetId: Int = 1
+
+    private val amount: Double = 0.0
+
 
     fun updateUiState(budgetDetails: BudgetDetails) {
         budgetUiState =
@@ -23,16 +35,42 @@ class BudgetScreenViewModel (private val expenseRepository: ExpenseRepository) :
     }
 
     suspend fun saveBudget() {
+
         if (validateInput()) {
             expenseRepository.insertBudget(budgetUiState.budgetDetails.toBudget())
         }
     }
+
+    suspend fun addAndUpdateBudget(newAmount: Double) {
+        val currentBudget = expenseRepository.getCurrentBudget(budgetId)
+            .filterNotNull()
+            .first()
+            .toBudgetUiState()
+
+        val currentAmount = currentBudget.budgetDetails.amount.toDouble()
+
+        val updatedBudgetDetails = currentBudget.budgetDetails.copy(
+            amount = (currentAmount + newAmount).toString()
+        )
+
+        val updatedBudgetUiState = currentBudget.copy(
+            budgetDetails = updatedBudgetDetails
+        )
+
+        if (validateInput()) {
+            expenseRepository.updateBudget(updatedBudgetUiState.budgetDetails.toBudget())
+        }
+    }
+
 
     private fun validateInput(uiState: BudgetDetails = budgetUiState.budgetDetails): Boolean {
         return with(uiState) {
             amount.isNotBlank()
         }
     }
+
+    val currentBudget: StateFlow<Budget?> = expenseRepository.getCurrentBudgetStream()
+        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
 }
 
 data class BudgetUiState(
@@ -41,17 +79,13 @@ data class BudgetUiState(
 )
 
 data class BudgetDetails(
-    val id: Int = 0,
+    val id: Int = 1,
     val amount: String = "",
-    val date_added: Date = Date(),
-    val date_updated: Date = Date()
 )
 
 fun BudgetDetails.toBudget(): Budget = Budget(
     id = id,
     amount = amount.toDoubleOrNull() ?: 0.0,
-    date_added = date_added,
-    date_updated = date_updated
 )
 
 fun Budget.toBudgetUiState(isEntryValid: Boolean = false): BudgetUiState = BudgetUiState(
@@ -62,8 +96,6 @@ fun Budget.toBudgetUiState(isEntryValid: Boolean = false): BudgetUiState = Budge
 fun Budget.toBudgetDetails(): BudgetDetails = BudgetDetails(
     id = id,
     amount = amount.toString(),
-    date_added = date_added,
-    date_updated = date_updated
 )
 
 fun Budget.formattedAmount(): String {

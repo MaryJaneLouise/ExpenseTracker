@@ -16,14 +16,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import android.widget.DatePicker
+import android.widget.Toast
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -45,7 +49,7 @@ import com.mariejuana.expensetracker.ui.theme.ExpenseTrackerTheme
 
 object BudgetEntryDestination : NavigationDestination {
     override val route = "budget_entry"
-    override val titleRes = R.string.budget_title
+    override val titleRes = R.string.budget_add_button
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,9 +59,10 @@ fun BudgetEntryScreen(
     navigateBack: () -> Unit,
     onNavigateUp: () -> Unit,
     canNavigateBack: Boolean = true,
-    viewModel: BudgetScreenViewModel = viewModel(factory = AppViewModelProvider.Factory)
+    viewModel: BudgetEntryScreenViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
     val coroutineScope = rememberCoroutineScope()
+    val currentBudget by viewModel.currentBudget.collectAsState()
 
     Scaffold (
         topBar = {
@@ -68,21 +73,29 @@ fun BudgetEntryScreen(
             )
         }
     ) {  innerPadding ->
-        BudgetEntryBody(
-            budgetUiState = viewModel.budgetUiState,
-            onItemValueChange = viewModel::updateUiState,
-            onSaveClick = {
-                coroutineScope.launch {
-                viewModel.saveBudget()
-                navigateBack()
-                }
-            },
-            modifier = Modifier
-                .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
-                .fillMaxWidth()
-        )
-    }
+            BudgetEntryBody(
+                budgetUiState = viewModel.budgetUiState,
+                onItemValueChange = viewModel::updateUiState,
+                onSaveClick = {
+                    val newAmount = viewModel.budgetUiState.budgetDetails.amount.toDouble()
+                    if (currentBudget?.amount != null) {
+                        coroutineScope.launch {
+                            viewModel.addAndUpdateBudget(newAmount)
+                            navigateBack()
+                        }
+                    } else {
+                        coroutineScope.launch {
+                            viewModel.saveBudget()
+                            navigateBack()
+                        }
+                    }
+                },
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .verticalScroll(rememberScrollState())
+                    .fillMaxWidth()
+            )
+        }
 }
 
 @Composable
@@ -124,12 +137,11 @@ fun BudgetInputForm(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_medium))
     ) {
-
         OutlinedTextField(
             value = budgetDetails.amount,
             onValueChange = { onValueChange(budgetDetails.copy(amount = it)) },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-            label = { Text(stringResource(R.string.expense_entry_amount)) },
+            label = { Text(stringResource(R.string.budget_title)) },
             colors = OutlinedTextFieldDefaults.colors(
                 focusedContainerColor = MaterialTheme.colorScheme.surface,
                 unfocusedContainerColor = MaterialTheme.colorScheme.surface,
