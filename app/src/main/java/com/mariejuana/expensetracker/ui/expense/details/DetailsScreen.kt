@@ -31,6 +31,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import java.text.NumberFormat
@@ -113,12 +114,17 @@ fun GeneralDetailsScreen (
                         .padding(8.dp),
                 ) {
                     Text(
-                        text = "Expenses for $currentYear:",
-                        modifier = Modifier.padding(16.dp)
+                        text = "$currentYear expenses:",
+                        modifier = Modifier
+                            .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp)
+                            .align(Alignment.CenterHorizontally)
+
                     )
                     Text(
                         text = NumberFormat.getCurrencyInstance().format(totalPriceForCurrentYear),
-                        modifier = Modifier.padding(16.dp)
+                        modifier = Modifier
+                            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+                            .align(Alignment.CenterHorizontally)
                     )
                 }
                 Card(
@@ -127,12 +133,16 @@ fun GeneralDetailsScreen (
                         .padding(8.dp)
                 ) {
                     Text(
-                        text = "Expenses for $currentMonth $currentYear:",
-                        modifier = Modifier.padding(16.dp)
+                        text = "$currentMonth $currentYear expenses:",
+                        modifier = Modifier
+                            .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp)
+                            .align(Alignment.CenterHorizontally)
                     )
                     Text(
                         text = NumberFormat.getCurrencyInstance().format(totalPriceForCurrentMonth),
-                        modifier = Modifier.padding(16.dp)
+                        modifier = Modifier
+                            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+                            .align(Alignment.CenterHorizontally)
                     )
                 }
             }
@@ -148,31 +158,35 @@ fun GeneralDetailsScreen (
             Button(
                 onClick = navigateToAllExpense,
                 shape = MaterialTheme.shapes.small,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp)
             ) {
-                Text(text = stringResource(R.string.expense_view_all_button))
+                Text(text = stringResource(R.string.expense_view_all_button),
+                    style = MaterialTheme.typography.bodyLarge)
             }
             Button(
                 onClick = navigateToExpensePerMonth,
                 shape = MaterialTheme.shapes.small,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp)
             ) {
-                Text(text = stringResource(R.string.expense_view_month_button))
+                Text(text = stringResource(R.string.expense_view_month_button),
+                    style = MaterialTheme.typography.bodyLarge)
             }
             Button(
                 onClick = navigateToExpensePerYear,
                 shape = MaterialTheme.shapes.small,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp)
             ) {
-                Text(text = stringResource(R.string.expense_view_year_button))
+                Text(text = stringResource(R.string.expense_view_year_button),
+                    style = MaterialTheme.typography.bodyLarge)
             }
             Button(
                 onClick = { deleteConfirmationRequired = true },
                 shape = MaterialTheme.shapes.small,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp),
                 colors = deleteButtonColors
             ) {
-                Text(text = stringResource(R.string.expenses_delete_all))
+                Text(text = stringResource(R.string.expenses_delete_all),
+                    style = MaterialTheme.typography.bodyLarge)
             }
 
             if (deleteConfirmationRequired) {
@@ -197,40 +211,43 @@ private fun RecentExpense (
     expense: Expense,
     modifier: Modifier = Modifier
 ) {
-    Text(
-        text = stringResource(id = R.string.expense_recent_title),
-        style = MaterialTheme.typography.titleLarge
-    )
-    Card (
-        modifier = modifier,
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+    Column (
+        modifier = Modifier.padding(16.dp)
     ) {
-        Column (
-            modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_large)),
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_small))
+        Text(
+            text = stringResource(id = R.string.expense_recent_title),
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        Card (
+            modifier = modifier,
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth()
+            Column (
+                modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_large)),
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_small))
             ) {
-                Column {
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column {
+                        Text(
+                            text = expense.name,
+                            style = MaterialTheme.typography.titleLarge,
+                        )
+                        Text(
+                            text = expense.date_added.toFormattedDateString(),
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    }
+                    Spacer(Modifier.weight(1f))
                     Text(
-                        text = expense.name,
-                        style = MaterialTheme.typography.titleLarge,
-                    )
-                    Text(
-                        text = expense.date_added.toFormattedDateString(),
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Text(
-                        text = expense.type,
-                        style = MaterialTheme.typography.titleMedium
+                        text = NumberFormat.getCurrencyInstance().format(expense.amount),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.align(Alignment.CenterVertically),
+                        style = MaterialTheme.typography.titleLarge
                     )
                 }
-                Spacer(Modifier.weight(1f))
-                Text(
-                    text = NumberFormat.getCurrencyInstance().format(expense.amount),
-                    style = MaterialTheme.typography.titleMedium
-                )
             }
         }
     }

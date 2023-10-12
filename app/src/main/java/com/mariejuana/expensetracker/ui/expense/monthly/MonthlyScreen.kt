@@ -85,11 +85,15 @@ fun MonthlyDetailsScreen (
             ) {
                 Text(
                     text = "Expenses this month:",
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier
+                        .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp)
+                        .align(Alignment.CenterHorizontally)
                 )
                 Text(
                     text = NumberFormat.getCurrencyInstance().format(totalPriceForCurrentMonth),
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier
+                        .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+                        .align(Alignment.CenterHorizontally)
                 )
             }
 

@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -111,34 +112,36 @@ fun HomeScreen(
                     onClick = navigateToCurrentBudget
                 ) {
                     Text(
-                        text = "Current Budget:\n",
-                        modifier = Modifier.padding(16.dp)
+                        text = "Current Budget:",
+                        modifier = Modifier
+                            .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp)
+                            .align(Alignment.CenterHorizontally)
                     )
-                    if (currentBudget == null) {
-                        Text(
-                            text = NumberFormat.getCurrencyInstance().format(0.0),
-                            modifier = Modifier.padding(16.dp)
-                        )
-                    } else {
-                        Text(
-                            text = NumberFormat.getCurrencyInstance().format(currentBudget?.amount ?: 0.0),
-                            modifier = Modifier.padding(16.dp)
-                        )
-                    }
+                    Text(
+                        text = NumberFormat.getCurrencyInstance().format(currentBudget?.amount ?: 0.0),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+                            .align(Alignment.CenterHorizontally)
+                    )
                 }
-
                 Card(
                     modifier = Modifier
                         .weight(1f)
                         .padding(8.dp)
                 ) {
                     Text(
-                        text = "Expenses for $currentMonth $currentYear:",
-                        modifier = Modifier.padding(16.dp)
+                        text = "$currentMonth $currentYear expenses:",
+                        modifier = Modifier
+                            .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp)
+                            .align(Alignment.CenterHorizontally)
                     )
                     Text(
                         text = NumberFormat.getCurrencyInstance().format(totalPriceForCurrentMonth),
-                        modifier = Modifier.padding(16.dp)
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+                            .align(Alignment.CenterHorizontally)
                     )
                 }
             }
@@ -147,16 +150,20 @@ fun HomeScreen(
             Button(
                 onClick = navigateToExpenseEntry,
                 shape = MaterialTheme.shapes.small,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp)
             ) {
-                Text(text = stringResource(R.string.expense_entry_button))
+                Text(
+                    text = stringResource(R.string.expense_entry_button),
+                    style = MaterialTheme.typography.bodyLarge)
             }
             Button(
                 onClick = navigateToViewExpense,
                 shape = MaterialTheme.shapes.small,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp)
             ) {
-                Text(text = stringResource(R.string.expense_view))
+                Text(
+                    text = stringResource(R.string.expense_view),
+                    style = MaterialTheme.typography.bodyLarge)
             }
         }
     }
@@ -168,62 +175,48 @@ private fun RecentExpense (
     expense: Expense,
     modifier: Modifier = Modifier
 ) {
-    Text(
-        text = stringResource(id = R.string.expense_recent_title),
-        style = MaterialTheme.typography.titleLarge
-    )
-    Card (
-        modifier = modifier,
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+    Column (
+        modifier = Modifier.padding(16.dp)
     ) {
-        Column (
-            modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_large)),
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_small))
+        Text(
+            text = stringResource(id = R.string.expense_recent_title),
+            style = MaterialTheme.typography.titleLarge,
+            modifier = Modifier.padding(bottom = 8.dp)
+        )
+        Card (
+            modifier = modifier,
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth()
+            Column (
+                modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_large)),
+                verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_small))
             ) {
-                Column {
+                Row(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column {
+                        Text(
+                            text = expense.name,
+                            style = MaterialTheme.typography.titleLarge,
+                        )
+                        Text(
+                            text = expense.type,
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    }
+                    Spacer(Modifier.weight(1f))
                     Text(
-                        text = expense.name,
-                        style = MaterialTheme.typography.titleLarge,
-                    )
-                    Text(
-                        text = expense.type,
-                        style = MaterialTheme.typography.titleMedium
+                        text = NumberFormat.getCurrencyInstance().format(expense.amount),
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.align(Alignment.CenterVertically),
+                        style = MaterialTheme.typography.titleLarge
                     )
                 }
-                Spacer(Modifier.weight(1f))
-                Text(
-                    text = NumberFormat.getCurrencyInstance().format(expense.amount),
-                    style = MaterialTheme.typography.titleMedium
-                )
             }
         }
     }
-}
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun BudgetCard(
-    budget: Budget,
-    modifier: Modifier = Modifier
-) {
-    Card (
-        modifier = modifier.fillMaxWidth(),
-    )
-     {
-         Text(
-             text = "Current budget:",
-             modifier = Modifier.padding(16.dp)
-         )
-         Text(
-             text = NumberFormat.getCurrencyInstance().format(budget.amount),
-             modifier = Modifier.padding(16.dp)
-         )
-    }
 }
-
 
 @Preview(showBackground = true)
 @Composable

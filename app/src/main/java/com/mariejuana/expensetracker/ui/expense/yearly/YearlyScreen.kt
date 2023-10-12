@@ -83,15 +83,19 @@ fun YearlyDetailsScreen (
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp),
+                    .padding(16.dp),
             ) {
                 Text(
                     text = "Expenses this year:",
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier
+                        .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp)
+                        .align(Alignment.CenterHorizontally)
                 )
                 Text(
                     text = NumberFormat.getCurrencyInstance().format(totalPriceForCurrentYear),
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier
+                        .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+                        .align(Alignment.CenterHorizontally)
                 )
             }
 
