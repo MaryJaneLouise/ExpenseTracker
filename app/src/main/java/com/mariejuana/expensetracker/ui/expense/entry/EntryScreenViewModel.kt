@@ -68,7 +68,7 @@ class EntryScreenViewModel (private val expenseRepository: ExpenseRepository) : 
         return with(uiState) {
             name.isNotBlank() &&
             type.isNotBlank() &&
-            amount.isNotBlank()
+            amount.isNotBlank() && amount >= 0.toString()
         }
     }
 
