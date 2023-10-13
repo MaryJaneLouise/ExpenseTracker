@@ -19,6 +19,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -32,6 +34,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -122,8 +125,8 @@ private fun ExpenseDetailsBody(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.padding(dimensionResource(id = R.dimen.padding_medium)),
-        verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_medium))
+        modifier = modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         var deleteConfirmationRequired by rememberSaveable { mutableStateOf(false) }
 
@@ -138,7 +141,7 @@ private fun ExpenseDetailsBody(
         )
 
         Button(
-            shape = MaterialTheme.shapes.medium,
+            shape = MaterialTheme.shapes.small,
             modifier = Modifier.fillMaxWidth(),
             onClick = { deleteConfirmationRequired = true },
             colors = deleteButtonColors
@@ -163,67 +166,56 @@ fun ItemDetails(
     expense: Expense,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier = modifier,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.primaryContainer
-        )
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(dimensionResource(id = R.dimen.padding_medium)),
-            verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_medium))
-        ) {
-            ExpenseDetailsRow(
-                labelResID = R.string.expense_detail_name,
-                itemDetail = expense.name,
-                modifier = Modifier.padding(horizontal = dimensionResource(id = R.dimen
-                    .padding_medium))
-            )
-            ExpenseDetailsRow(
-                labelResID = R.string.expense_detail_type,
-                itemDetail = expense.type,
-                modifier = Modifier.padding(horizontal = dimensionResource(id = R.dimen
-                    .padding_medium))
-            )
-            ExpenseDetailsRow(
-                labelResID = R.string.expense_detail_amount,
-                itemDetail = NumberFormat.getCurrencyInstance().format(expense.amount),
-                modifier = Modifier.padding(horizontal = dimensionResource(id = R.dimen
-                    .padding_medium))
-            )
-            ExpenseDetailsRow(
-                labelResID = R.string.expense_detail_date_added,
-                itemDetail = expense.date_added.toFormattedDateTimeString(),
-                modifier = Modifier.padding(horizontal = dimensionResource(id = R.dimen
-                    .padding_medium))
-            )
-        }
-    }
+    OutlinedTextField(
+        value = expense.name,
+        onValueChange = {},
+        label = { Text(stringResource(R.string.expense_entry_name)) },
+        colors = OutlinedTextFieldDefaults.colors(
+            disabledBorderColor = MaterialTheme.colorScheme.primary,
+            disabledLabelColor = MaterialTheme.colorScheme.primary,
+            disabledTextColor = MaterialTheme.colorScheme.onPrimaryContainer
+        ),
+        modifier = Modifier.fillMaxWidth(),
+        enabled = false
+    )
+    OutlinedTextField(
+        value = expense.type,
+        onValueChange = {},
+        label = { Text(stringResource(R.string.expense_detail_type)) },
+        colors = OutlinedTextFieldDefaults.colors(
+            disabledBorderColor = MaterialTheme.colorScheme.primary,
+            disabledLabelColor = MaterialTheme.colorScheme.primary,
+            disabledTextColor = MaterialTheme.colorScheme.onPrimaryContainer
+        ),
+        modifier = Modifier.fillMaxWidth(),
+        enabled = false
+    )
+    OutlinedTextField(
+        value = NumberFormat.getCurrencyInstance().format(expense.amount),
+        onValueChange = {},
+        label = { Text(stringResource(R.string.expense_detail_amount)) },
+        colors = OutlinedTextFieldDefaults.colors(
+            disabledBorderColor = MaterialTheme.colorScheme.primary,
+            disabledLabelColor = MaterialTheme.colorScheme.primary,
+            disabledTextColor = MaterialTheme.colorScheme.onPrimaryContainer
+        ),
+        modifier = Modifier.fillMaxWidth(),
+        enabled = false
+    )
+    OutlinedTextField(
+        value = expense.date_added.toFormattedDateTimeString(),
+        onValueChange = {},
+        label = { Text(stringResource(R.string.expense_detail_date_added)) },
+        colors = OutlinedTextFieldDefaults.colors(
+            disabledBorderColor = MaterialTheme.colorScheme.primary,
+            disabledLabelColor = MaterialTheme.colorScheme.primary,
+            disabledTextColor = MaterialTheme.colorScheme.onPrimaryContainer
+        ),
+        modifier = Modifier.fillMaxWidth(),
+        enabled = false
+    )
 }
 
-@Composable
-private fun ExpenseDetailsRow(
-    @StringRes
-    labelResID: Int,
-    itemDetail: String,
-    modifier: Modifier = Modifier
-) {
-    Column(modifier = modifier.fillMaxWidth()) {
-        Text(
-            text = stringResource(labelResID),
-            fontWeight = FontWeight.Bold,
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(bottom = dimensionResource(id = R.dimen.padding_small))
-        )
-        Text(
-            text = itemDetail,
-            style = MaterialTheme.typography.bodySmall
-        )
-    }
-}
 
 @Composable
 private fun DeleteConfirmationDialog(

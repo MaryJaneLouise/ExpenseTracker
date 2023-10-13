@@ -34,6 +34,8 @@ class OfflineExpenseRepository(private val expenseDao: ExpenseDao) : ExpenseRepo
 
     override suspend fun updateBudget(budget: Budget) = expenseDao.updateBudget(budget)
 
+    override suspend fun deleteBudget() = expenseDao.deleteBudget()
+
 
     // Getting the transaction history
     override fun getAllTransactionStream(): Flow<List<TransactionHistory>> = expenseDao.getAllTransaction()
@@ -43,4 +45,6 @@ class OfflineExpenseRepository(private val expenseDao: ExpenseDao) : ExpenseRepo
     override fun getCurrentTransaction(id: Int): Flow<TransactionHistory> = expenseDao.getCurrentTransaction(id)
 
     override suspend fun insertTransaction(transactionHistory: TransactionHistory) = expenseDao.insertTransaction(transactionHistory)
+
+    override suspend fun deleteAllTransaction() = expenseDao.deleteAllTransaction()
 }

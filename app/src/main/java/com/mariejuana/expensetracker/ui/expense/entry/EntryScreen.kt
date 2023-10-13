@@ -88,16 +88,19 @@ fun ExpenseEntryScreen(
             onSaveClick = {
                 val newAmount = viewModel.expenseUiState.expenseDetails.amount.toDouble()
 
-                if ((currentBudget?.amount?.minus(newAmount))!! >= 0) {
-                    coroutineScope.launch {
-                        viewModel.saveExpense(newAmount)
-                        navigateBack()
+                if (currentBudget?.amount != null) {
+                    if ((currentBudget?.amount?.minus(newAmount))!! >= 0) {
+                        coroutineScope.launch {
+                            viewModel.saveExpense(newAmount)
+                            navigateBack()
+                        }
                     }
+                    else {
+                        Toast.makeText(context, "Please add more budget before adding expenses again.", Toast.LENGTH_LONG).show()
+                    }
+                } else {
+                    Toast.makeText(context, "Please add budget first.", Toast.LENGTH_LONG).show()
                 }
-                else {
-                    Toast.makeText(context, "Please add more budget before adding expenses again.", Toast.LENGTH_LONG).show()
-                }
-
             },
             modifier = Modifier
                 .padding(innerPadding)

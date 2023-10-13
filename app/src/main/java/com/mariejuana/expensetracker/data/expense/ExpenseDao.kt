@@ -57,6 +57,9 @@ interface ExpenseDao {
     @Update
     suspend fun updateBudget(budget: Budget)
 
+    @Query("DELETE FROM budget")
+    suspend fun deleteBudget()
+
 
     // Getting the transaction history
     @Query("SELECT * FROM transaction_history")
@@ -70,4 +73,7 @@ interface ExpenseDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertTransaction(transactionHistory: TransactionHistory)
+
+    @Query("DELETE FROM transaction_history")
+    suspend fun deleteAllTransaction()
 }

@@ -2,17 +2,23 @@ package com.mariejuana.expensetracker.ui.budget
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -20,15 +26,20 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
@@ -59,6 +70,7 @@ fun BudgetScreen(
     val coroutineScope = rememberCoroutineScope()
     val currentBudget by viewModel.currentBudget.collectAsState()
     val allTransactionHistory by viewModel.transactionFragmentUiState.collectAsState()
+    val transactionUiState by viewModel.transactionFragmentUiState.collectAsState()
 
     Scaffold (
         topBar = {
@@ -82,21 +94,29 @@ fun BudgetScreen(
                 Card(
                     modifier = Modifier
                         .weight(1f)
-                        .padding(8.dp),
+                        .padding(16.dp),
                 ) {
                     Text(
-                        text = "Current Budget:\n",
-                        modifier = Modifier.padding(16.dp)
+                        text = "Available Budget:",
+                        modifier = Modifier
+                            .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp)
+                            .align(Alignment.CenterHorizontally)
                     )
                     if (currentBudget?.amount == null) {
                         Text(
                             text = NumberFormat.getCurrencyInstance().format(0.0),
-                            modifier = Modifier.padding(16.dp)
+                            modifier = Modifier
+                                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+                                .align(Alignment.CenterHorizontally),
+                            style = MaterialTheme.typography.titleLarge
                         )
                     } else {
                         Text(
                             text = NumberFormat.getCurrencyInstance().format(currentBudget?.amount ?: 0.0),
-                            modifier = Modifier.padding(16.dp)
+                            modifier = Modifier
+                                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+                                .align(Alignment.CenterHorizontally),
+                            style = MaterialTheme.typography.titleLarge
                         )
                     }
                 }
@@ -104,12 +124,51 @@ fun BudgetScreen(
             Row (
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                Button(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = navigateToAddBudget
-                ) {
-                    Text(
-                        text = stringResource(id = R.string.budget_add_button)
+                var deleteConfirmationRequiredTransaction by rememberSaveable { mutableStateOf(false) }
+
+                val deleteButtonColors = ButtonDefaults.textButtonColors(
+                    containerColor = MaterialTheme.colorScheme.error,
+                    contentColor = MaterialTheme.colorScheme.onError
+                )
+
+                Column {
+                    Button(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 16.dp, end = 16.dp),
+                        onClick = navigateToAddBudget,
+                        shape = MaterialTheme.shapes.small,
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.budget_add_button),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                    Button(
+                        onClick = { deleteConfirmationRequiredTransaction = true },
+                        shape = MaterialTheme.shapes.small,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 16.dp, end = 16.dp),
+                        colors = deleteButtonColors
+                    ) {
+                        Text(text = stringResource(R.string.transaction_delete_button),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                    }
+                }
+
+                if (deleteConfirmationRequiredTransaction) {
+                    DeleteConfirmationTransactionDialog(
+                        onDeleteConfirm = {
+                            deleteConfirmationRequiredTransaction = false
+                            coroutineScope.launch {
+                                viewModel.deleteAllTransaction()
+                                navigateBack()
+                            }
+                        },
+                        onDeleteCancel = { deleteConfirmationRequiredTransaction = false },
+                        modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_medium))
                     )
                 }
             }
@@ -117,48 +176,75 @@ fun BudgetScreen(
             Row (
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
+                    .padding(start = 16.dp, end = 16.dp, top = 25.dp, bottom = 8.dp),
             ) {
-                Text(text = "Transaction History")
+                Text(
+                    text = "Transaction History",
+                    style = MaterialTheme.typography.titleLarge
+                )
             }
 
-            LazyColumn() {
-                items(
-                    items = allTransactionHistory.transactionList
-                        .sortedByDescending { it.date },
-                    key = { it.id }
-                ) { item ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp),
-                    ) {
-                        Row(
+            if (transactionUiState.transactionList.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .wrapContentWidth()
+                        .wrapContentHeight()
+                        .align(Alignment.CenterHorizontally)
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = stringResource(R.string.no_transaction_database),
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                }
+            } else {
+                LazyColumn() {
+                    items(
+                        items = allTransactionHistory.transactionList
+                            .sortedByDescending { it.date },
+                        key = { it.id }
+                    ) { item ->
+                        Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(dimensionResource(id = R.dimen.padding_medium)),
+                                .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
                         ) {
-                            Column {
-                                Text(
-                                    text = item.name,
-                                )
-                                Text(
-                                    text = item.date.toFormattedDateTimeString(),
-                                )
-                            }
-                            Spacer(Modifier.weight(1f))
-                            if (item.type == "expense") {
-                                Text(
-                                    text = "- ${
-                                        NumberFormat.getCurrencyInstance().format(item.amount)
-                                    }",
-                                )
-                            } else if (item.type == "budget") {
-                                Text(
-                                    text = "+ ${
-                                        NumberFormat.getCurrencyInstance().format(item.amount)
-                                    }",
-                                )
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(dimensionResource(id = R.dimen.padding_medium)),
+                            ) {
+                                Column {
+                                    Text(
+                                        text = item.name,
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
+                                    Text(
+                                        text = item.date.toFormattedDateTimeString(),
+                                    )
+                                }
+                                Spacer(Modifier.weight(1f))
+                                if (item.type == "expense") {
+                                    Text(
+                                        text = "- ${
+                                            NumberFormat.getCurrencyInstance().format(item.amount)
+                                        }",
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.align(Alignment.CenterVertically),
+                                        style = MaterialTheme.typography.titleLarge
+                                    )
+                                } else if (item.type == "budget") {
+                                    Text(
+                                        text = "+ ${
+                                            NumberFormat.getCurrencyInstance().format(item.amount)
+                                        }",
+                                        textAlign = TextAlign.Center,
+                                        modifier = Modifier.align(Alignment.CenterVertically),
+                                        style = MaterialTheme.typography.titleLarge
+                                    )
+                                }
                             }
                         }
                     }
@@ -166,4 +252,28 @@ fun BudgetScreen(
             }
         }
     }
+}
+
+@Composable
+private fun DeleteConfirmationTransactionDialog(
+    onDeleteConfirm: () -> Unit,
+    onDeleteCancel: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    AlertDialog (
+        onDismissRequest = { /* Do nothing */ },
+        title = { Text(stringResource(R.string.attention)) },
+        text = { Text(stringResource(R.string.delete_all_transac_question)) },
+        modifier = modifier,
+        dismissButton = {
+            TextButton(onClick = onDeleteCancel) {
+                Text(text = stringResource(R.string.no))
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDeleteConfirm) {
+                Text(text = stringResource(R.string.yes))
+            }
+        }
+    )
 }

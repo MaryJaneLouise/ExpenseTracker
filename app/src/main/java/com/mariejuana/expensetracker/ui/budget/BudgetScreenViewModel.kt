@@ -17,7 +17,7 @@ import kotlinx.coroutines.flow.stateIn
 
 data class BudgetUiState(val currentBudget: List<Budget> = listOf())
 data class TransactionUiState(val transactionList: List<TransactionHistory> = listOf())
-class BudgetScreenViewModel (expenseRepository: ExpenseRepository) : ViewModel() {
+class BudgetScreenViewModel (private val expenseRepository: ExpenseRepository) : ViewModel() {
     var budgetScreenUiState: StateFlow<BudgetUiState> =
         expenseRepository.getAllBudgetStream().map { BudgetUiState(it) }
             .stateIn(
@@ -33,7 +33,16 @@ class BudgetScreenViewModel (expenseRepository: ExpenseRepository) : ViewModel()
                 started = SharingStarted.Eagerly,
                 initialValue = TransactionUiState()
             )
+
     val currentBudget: StateFlow<Budget?> = expenseRepository.getCurrentBudgetStream()
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    suspend fun deleteBudget() {
+        expenseRepository.deleteBudget()
+    }
+
+    suspend fun deleteAllTransaction() {
+        expenseRepository.deleteAllTransaction()
+    }
 }
 

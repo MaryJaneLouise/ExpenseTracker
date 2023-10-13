@@ -66,7 +66,7 @@ class BudgetEntryScreenViewModel (private val expenseRepository: ExpenseReposito
 
     private fun validateInput(uiState: BudgetDetails = budgetUiState.budgetDetails): Boolean {
         return with(uiState) {
-            amount.isNotBlank()
+            amount.isNotBlank() && (amount >= 0.toString())
         }
     }
 

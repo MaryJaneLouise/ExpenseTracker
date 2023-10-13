@@ -7,17 +7,24 @@
     <string name="back_button">Back</string>
     <string name="delete">Delete expense</string>
     <string name="delete_question">Are you sure you want to delete this expense?\nThis cannot be undone.</string>
-    <string name="delete_all_question">Are you sure you want to delete all of your expenses?\nThis cannot be undone.</string>
+    <string name="delete_all_expense_question">Are you sure you want to delete all of your expenses?\nThis cannot be undone.</string>
+    <string name="delete_all_transac_question">Are you sure you want to delete all of your transaction history?\nThis cannot be undone.</string>
+    <string name="delete_all_budget_question">Are you sure you want to delete your budget?\nThis cannot be undone.</string>
+    <string name="delete_all_question">Are you sure you want to delete all of your data here?\nThis cannot be undone.</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
 
     <!-- Empty Expense Database -->
     <string name="no_expense_database">There is no expense present. Add first.</string>
 
+    <!-- Empty Transaction Database -->
+    <string name="no_transaction_database">There is no transaction present. Add first.</string>
+
     <!-- HomeScreen -->
     <string name="expense_entry_button">Add expense</string>
     <string name="expense_view">View expenses</string>
     <string name="expense_view_1">Update expense</string>
+    <string name="delete_all_button">Clear all data</string>
 
     <!-- General Details Screen -->
     <string name="expense_view_all_button">View all expenses</string>
@@ -40,9 +47,12 @@
     <string name="budget_title">Current budget</string>
     <string name="current_budget_title">Current budget</string>
 
+
     <!-- Current budget screen -->
     <string name="budget_add_button">Add budget</string>
     <string name="budget_update_button">Update budget</string>
+    <string name="budget_delete_button">Clear budget</string>
+    <string name="transaction_delete_button">Clear transaction history</string>
 
     <!-- Add expense screen -->
     <string name="expense_entry_name">Expense name</string>

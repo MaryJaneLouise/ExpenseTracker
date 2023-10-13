@@ -11,6 +11,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
@@ -95,7 +96,8 @@ fun YearlyDetailsScreen (
                     text = NumberFormat.getCurrencyInstance().format(totalPriceForCurrentYear),
                     modifier = Modifier
                         .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
-                        .align(Alignment.CenterHorizontally)
+                        .align(Alignment.CenterHorizontally),
+                    style = MaterialTheme.typography.titleLarge
                 )
             }
 
@@ -116,7 +118,7 @@ fun YearlyDetailsScreen (
                     Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(8.dp),
+                            .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 8.dp),
                     ) {
                         Row (
                             modifier = Modifier.fillMaxWidth().padding(dimensionResource(id = R.dimen.padding_medium)),

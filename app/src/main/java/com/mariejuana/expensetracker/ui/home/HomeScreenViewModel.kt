@@ -19,7 +19,7 @@ import java.util.Locale
 data class HomeUiState(val expenseList: List<Expense> = listOf())
 data class HomeUiStateBudget(val budget: List<Budget> = listOf())
 
-class HomeScreenViewModel(expenseRepository: ExpenseRepository) : ViewModel() {
+class HomeScreenViewModel(private val expenseRepository: ExpenseRepository) : ViewModel() {
     val homeUiState: StateFlow<HomeUiState> =
         expenseRepository.getAllExpensesStream().map { HomeUiState(it) }
             .stateIn(
@@ -52,4 +52,10 @@ class HomeScreenViewModel(expenseRepository: ExpenseRepository) : ViewModel() {
         val currentYear = SimpleDateFormat("yyyy", Locale.getDefault()).format(Date())
         emitAll(expenseRepository.getTotalAmountForYear(currentYear))
     }.stateIn(viewModelScope, SharingStarted.Eagerly, 0.0)
+
+    suspend fun deleteAllItem() {
+        expenseRepository.deleteAllItem()
+        expenseRepository.deleteBudget()
+        expenseRepository.deleteAllTransaction()
+    }
 }

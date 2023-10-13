@@ -35,6 +35,8 @@ interface ExpenseRepository {
 
     suspend fun updateBudget(budget: Budget)
 
+    suspend fun deleteBudget()
+
 
     // Getting the transaction history
     fun getAllTransactionStream(): Flow<List<TransactionHistory>>
@@ -44,4 +46,6 @@ interface ExpenseRepository {
     fun getCurrentTransaction(id: Int): Flow<TransactionHistory>
 
     suspend fun insertTransaction(transactionHistory: TransactionHistory)
+
+    suspend fun deleteAllTransaction()
 }

@@ -8,17 +8,24 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -38,6 +45,7 @@ import com.mariejuana.expensetracker.R
 import com.mariejuana.expensetracker.application.AppViewModelProvider
 import com.mariejuana.expensetracker.application.ExpenseTopAppBar
 import com.mariejuana.expensetracker.data.expense.Budget
+import kotlinx.coroutines.launch
 
 object HomeDestination : NavigationDestination {
     override val route = "home"
@@ -56,9 +64,12 @@ fun HomeScreen(
     navigateToExpenseEntry: () -> Unit,
     navigateToViewExpense: () -> Unit,
     navigateToCurrentBudget: () -> Unit,
+    navigateBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeScreenViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
+    val coroutineScope = rememberCoroutineScope()
+
     val currentMonth = SimpleDateFormat("MMM", Locale.getDefault()).format(Date())
     val currentYear = SimpleDateFormat("yyyy", Locale.getDefault()).format(Date())
 
@@ -122,7 +133,8 @@ fun HomeScreen(
                         textAlign = TextAlign.Center,
                         modifier = Modifier
                             .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
-                            .align(Alignment.CenterHorizontally)
+                            .align(Alignment.CenterHorizontally),
+                        style = MaterialTheme.typography.titleLarge
                     )
                 }
                 Card(
@@ -141,12 +153,20 @@ fun HomeScreen(
                         textAlign = TextAlign.Center,
                         modifier = Modifier
                             .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
-                            .align(Alignment.CenterHorizontally)
+                            .align(Alignment.CenterHorizontally),
+                        style = MaterialTheme.typography.titleLarge
                     )
                 }
             }
             recentExpense?.let { RecentExpense(expense = it) }
-            
+
+            var deleteConfirmationRequired by rememberSaveable { mutableStateOf(false) }
+
+            val deleteButtonColors = ButtonDefaults.textButtonColors(
+                containerColor = MaterialTheme.colorScheme.error,
+                contentColor = MaterialTheme.colorScheme.onError
+            )
+
             Button(
                 onClick = navigateToExpenseEntry,
                 shape = MaterialTheme.shapes.small,
@@ -164,6 +184,29 @@ fun HomeScreen(
                 Text(
                     text = stringResource(R.string.expense_view),
                     style = MaterialTheme.typography.bodyLarge)
+            }
+            Button(
+                onClick = { deleteConfirmationRequired = true },
+                shape = MaterialTheme.shapes.small,
+                modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp),
+                colors = deleteButtonColors
+            ) {
+                Text(text = stringResource(R.string.delete_all_button),
+                    style = MaterialTheme.typography.bodyLarge)
+            }
+
+            if (deleteConfirmationRequired) {
+                DeleteConfirmationDialog(
+                    onDeleteConfirm = {
+                        deleteConfirmationRequired = false
+                        coroutineScope.launch {
+                            viewModel.deleteAllItem()
+                            navigateBack()
+                        }
+                    },
+                    onDeleteCancel = { deleteConfirmationRequired = false },
+                    modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_medium))
+                )
             }
         }
     }
@@ -215,7 +258,28 @@ private fun RecentExpense (
             }
         }
     }
+}
 
+@Composable
+private fun DeleteConfirmationDialog(
+    onDeleteConfirm: () -> Unit,
+    onDeleteCancel: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    AlertDialog(onDismissRequest = { /* Do nothing */ },
+        title = { Text(stringResource(R.string.attention)) },
+        text = { Text(stringResource(R.string.delete_all_question)) },
+        modifier = modifier,
+        dismissButton = {
+            TextButton(onClick = onDeleteCancel) {
+                Text(text = stringResource(R.string.no))
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onDeleteConfirm) {
+                Text(text = stringResource(R.string.yes))
+            }
+        })
 }
 
 @Preview(showBackground = true)

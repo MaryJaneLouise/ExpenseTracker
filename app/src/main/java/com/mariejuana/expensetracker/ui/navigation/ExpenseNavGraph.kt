@@ -42,6 +42,7 @@ fun ExpenseNavHost(
             HomeScreen(
                 navigateToExpenseEntry = { navController.navigate(ExpenseEntryDestination.route) },
                 navigateToViewExpense = { navController.navigate(GeneralDetailsDestination.route) },
+                navigateBack = { navController.popBackStack() },
                 navigateToCurrentBudget = { navController.navigate(BudgetDestination.route) }
             )
         }

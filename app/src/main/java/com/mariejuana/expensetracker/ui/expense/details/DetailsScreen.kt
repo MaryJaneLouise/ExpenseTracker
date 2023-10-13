@@ -124,7 +124,8 @@ fun GeneralDetailsScreen (
                         text = NumberFormat.getCurrencyInstance().format(totalPriceForCurrentYear),
                         modifier = Modifier
                             .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
-                            .align(Alignment.CenterHorizontally)
+                            .align(Alignment.CenterHorizontally),
+                        style = MaterialTheme.typography.titleLarge
                     )
                 }
                 Card(
@@ -142,7 +143,8 @@ fun GeneralDetailsScreen (
                         text = NumberFormat.getCurrencyInstance().format(totalPriceForCurrentMonth),
                         modifier = Modifier
                             .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
-                            .align(Alignment.CenterHorizontally)
+                            .align(Alignment.CenterHorizontally),
+                        style = MaterialTheme.typography.titleLarge
                     )
                 }
             }
@@ -261,7 +263,7 @@ private fun DeleteConfirmationDialog(
 ) {
     AlertDialog(onDismissRequest = { /* Do nothing */ },
         title = { Text(stringResource(R.string.attention)) },
-        text = { Text(stringResource(R.string.delete_all_question)) },
+        text = { Text(stringResource(R.string.delete_all_expense_question)) },
         modifier = modifier,
         dismissButton = {
             TextButton(onClick = onDeleteCancel) {
