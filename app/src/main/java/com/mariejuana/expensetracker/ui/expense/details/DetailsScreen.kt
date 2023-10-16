@@ -117,8 +117,8 @@ fun GeneralDetailsScreen (
                         text = "$currentYear expenses:",
                         modifier = Modifier
                             .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp)
-                            .align(Alignment.CenterHorizontally)
-
+                            .align(Alignment.CenterHorizontally),
+                        style = MaterialTheme.typography.bodyMedium
                     )
                     Text(
                         text = NumberFormat.getCurrencyInstance().format(totalPriceForCurrentYear),
@@ -137,7 +137,8 @@ fun GeneralDetailsScreen (
                         text = "$currentMonth $currentYear expenses:",
                         modifier = Modifier
                             .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp)
-                            .align(Alignment.CenterHorizontally)
+                            .align(Alignment.CenterHorizontally),
+                        style = MaterialTheme.typography.bodyMedium
                     )
                     Text(
                         text = NumberFormat.getCurrencyInstance().format(totalPriceForCurrentMonth),
