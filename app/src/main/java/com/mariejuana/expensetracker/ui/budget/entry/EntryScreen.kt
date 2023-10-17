@@ -160,7 +160,11 @@ fun BudgetInputForm(
     ) {
         OutlinedTextField(
             value = budgetDetails.amount,
-            onValueChange = { onValueChange(budgetDetails.copy(amount = it), transactionDetails.copy(amount = it)) },
+            onValueChange = {
+                val double = it.toDoubleOrNull()
+                if((double != null && double > 0) || it == "") {
+                    onValueChange(budgetDetails.copy(amount = it), transactionDetails.copy(amount = it))
+                }},
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             label = { Text(stringResource(R.string.budget_title)) },
             colors = OutlinedTextFieldDefaults.colors(

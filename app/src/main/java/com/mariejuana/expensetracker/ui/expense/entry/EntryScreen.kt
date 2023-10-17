@@ -254,7 +254,11 @@ fun ExpenseInputForm(
         }
         OutlinedTextField(
             value = expenseDetails.amount,
-            onValueChange = { onValueChange(expenseDetails.copy(amount = it), transactionDetails.copy(amount = it))},
+            onValueChange = {
+                val double = it.toDoubleOrNull()
+                if((double != null && double > 0) || it == "") {
+                    onValueChange(expenseDetails.copy(amount = it), transactionDetails.copy(amount = it))
+                }},
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
             label = { Text(stringResource(R.string.expense_entry_amount)) },
             colors = OutlinedTextFieldDefaults.colors(
