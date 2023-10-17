@@ -18,7 +18,7 @@
     <string name="no_expense_database">There is no expense present. Add first.</string>
 
     <!-- Empty Transaction Database -->
-    <string name="no_transaction_database">There is no transaction present. Add first.</string>
+    <string name="no_transaction_database">There is no addition of budget present here. Add first.</string>
 
     <!-- HomeScreen -->
     <string name="expense_entry_button">Add expense</string>
@@ -52,7 +52,7 @@
     <string name="budget_update_button">Update budget</string>
     <string name="budget_delete_button">Clear budget</string>
     <string name="budget_history_delete_button">Clear budget history</string>
-    <string name="budget_history">Budget History:</string>
+    <string name="budget_history">Budget History</string>
     <string name="budget_available">Available Budget:</string>
 
     <!-- Add expense screen -->

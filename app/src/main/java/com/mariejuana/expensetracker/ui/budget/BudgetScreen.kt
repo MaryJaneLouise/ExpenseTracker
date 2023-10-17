@@ -179,7 +179,7 @@ fun BudgetScreen(
                     .padding(start = 16.dp, end = 16.dp, top = 25.dp, bottom = 8.dp),
             ) {
                 Text(
-                    text = stringResource(R.string.budget_title),
+                    text = stringResource(R.string.budget_history),
                     style = MaterialTheme.typography.titleLarge
                 )
             }
