@@ -6,14 +6,24 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.Repartition
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -169,33 +179,75 @@ fun HomeScreen(
                 contentColor = MaterialTheme.colorScheme.onError
             )
 
-            Button(
-                onClick = navigateToExpenseEntry,
-                shape = MaterialTheme.shapes.small,
-                modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp)
+            Column (
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)
             ) {
-                Text(
-                    text = stringResource(R.string.expense_entry_button),
-                    style = MaterialTheme.typography.bodyLarge)
+                FilledTonalButton(
+                    onClick = navigateToExpenseEntry,
+                    shape = MaterialTheme.shapes.small,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp)
+                ) {
+                    Row (
+                      modifier = Modifier.padding(16.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Add,
+                            contentDescription = null,
+                        )
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Text(
+                            text = stringResource(R.string.expense_entry_button),
+                            style = MaterialTheme.typography.titleMedium)
+                    }
+                }
+                FilledTonalButton(
+                    onClick = navigateToViewExpense,
+                    shape = MaterialTheme.shapes.small,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp)
+                ) {
+                    Row (
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Repartition,
+                            contentDescription = null,
+                        )
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Text(
+                            text = stringResource(R.string.expense_view),
+                            style = MaterialTheme.typography.titleMedium)
+                    }
+                }
+                FilledTonalButton(
+                    onClick = { deleteConfirmationRequired = true },
+                    shape = MaterialTheme.shapes.small,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.errorContainer,
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer
+                    )
+                ) {
+                    Row (
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.Delete,
+                            contentDescription = null,
+                        )
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Text(text = stringResource(R.string.delete_all_button),
+                            style = MaterialTheme.typography.titleMedium)
+                    }
+                }
             }
-            Button(
-                onClick = navigateToViewExpense,
-                shape = MaterialTheme.shapes.small,
-                modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.expense_view),
-                    style = MaterialTheme.typography.bodyLarge)
-            }
-            Button(
-                onClick = { deleteConfirmationRequired = true },
-                shape = MaterialTheme.shapes.small,
-                modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp),
-                colors = deleteButtonColors
-            ) {
-                Text(text = stringResource(R.string.delete_all_button),
-                    style = MaterialTheme.typography.bodyLarge)
-            }
+
 
             if (deleteConfirmationRequired) {
                 DeleteConfirmationDialog(

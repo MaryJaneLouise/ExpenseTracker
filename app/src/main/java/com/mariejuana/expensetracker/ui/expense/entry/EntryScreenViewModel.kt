@@ -17,11 +17,14 @@ import com.mariejuana.expensetracker.ui.budget.entry.BudgetDetails
 import com.mariejuana.expensetracker.ui.budget.entry.BudgetUiState
 import com.mariejuana.expensetracker.ui.budget.entry.toBudget
 import com.mariejuana.expensetracker.ui.budget.entry.toBudgetUiState
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class EntryScreenViewModel (private val expenseRepository: ExpenseRepository) : ViewModel() {
     var expenseUiState by mutableStateOf(ExpenseUiState())
@@ -41,33 +44,38 @@ class EntryScreenViewModel (private val expenseRepository: ExpenseRepository) : 
             )
     }
 
-    suspend fun saveExpense(newAmount: Double) {
-        val currentBudget = expenseRepository.getCurrentBudget(budgetId)
-            .filterNotNull()
-            .first()
-            .toBudgetUiState()
+    fun saveExpense(newAmount: Double) {
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                val currentBudget = expenseRepository.getCurrentBudget(budgetId)
+                    .filterNotNull()
+                    .first()
+                    .toBudgetUiState()
 
-        val currentAmount = currentBudget.budgetDetails.amount.toDouble()
+                val currentAmount = currentBudget.budgetDetails.amount.toDouble()
 
-        val updatedBudgetDetails = currentBudget.budgetDetails.copy(
-            amount = (currentAmount - newAmount).toString()
-        )
+                val updatedBudgetDetails = currentBudget.budgetDetails.copy(
+                    amount = (currentAmount - newAmount).toString()
+                )
 
-        val updatedBudgetUiState = currentBudget.copy(
-            budgetDetails = updatedBudgetDetails
-        )
+                val updatedBudgetUiState = currentBudget.copy(
+                    budgetDetails = updatedBudgetDetails
+                )
 
-        if (validateInput()) {
-            expenseRepository.insertItem(expenseUiState.expenseDetails.toExpense())
-            expenseRepository.updateBudget(updatedBudgetUiState.budgetDetails.toBudget())
+                if (validateInput()) {
+                    expenseRepository.insertItem(expenseUiState.expenseDetails.toExpense())
+                    expenseRepository.updateBudget(updatedBudgetUiState.budgetDetails.toBudget())
+                }
+            }
         }
+
     }
 
     private fun validateInput(uiState: ExpenseDetails = expenseUiState.expenseDetails): Boolean {
         return with(uiState) {
             name.isNotBlank() &&
             type.isNotBlank() &&
-            amount.isNotBlank() && amount >= 0.toString()
+            amount.isNotBlank() && amount > 0.toString()
         }
     }
 

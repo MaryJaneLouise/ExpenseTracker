@@ -12,12 +12,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -131,8 +135,8 @@ private fun ExpenseDetailsBody(
         var deleteConfirmationRequired by rememberSaveable { mutableStateOf(false) }
 
         val deleteButtonColors = ButtonDefaults.textButtonColors(
-            containerColor = MaterialTheme.colorScheme.error,
-            contentColor = MaterialTheme.colorScheme.onError
+            containerColor = MaterialTheme.colorScheme.errorContainer,
+            contentColor = MaterialTheme.colorScheme.onErrorContainer
         )
 
         ItemDetails(
@@ -140,13 +144,23 @@ private fun ExpenseDetailsBody(
             modifier = Modifier.fillMaxWidth()
         )
 
-        Button(
+        FilledTonalButton(
             shape = MaterialTheme.shapes.small,
             modifier = Modifier.fillMaxWidth(),
             onClick = { deleteConfirmationRequired = true },
             colors = deleteButtonColors
         ) {
-            Text(text = stringResource(R.string.delete))
+            Row (
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.DeleteForever,
+                    contentDescription = null,
+                )
+                Spacer(modifier = Modifier.width(16.dp))
+                Text(text = stringResource(R.string.delete),
+                    style = MaterialTheme.typography.bodyLarge)
+            }
         }
 
         if (deleteConfirmationRequired) {

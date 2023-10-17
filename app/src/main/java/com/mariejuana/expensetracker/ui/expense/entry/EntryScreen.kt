@@ -20,12 +20,14 @@ import android.widget.DatePicker
 import android.widget.Toast
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.rounded.ArrowDropDown
+import androidx.compose.material.icons.rounded.Save
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -104,10 +106,8 @@ fun ExpenseEntryScreen(
 
                 if (currentBudget?.amount != null) {
                     if ((currentBudget?.amount?.minus(newAmount))!! >= 0) {
-                        coroutineScope.launch {
-                            viewModel.saveExpense(newAmount)
-                            navigateBack()
-                        }
+                        viewModel.saveExpense(newAmount)
+                        navigateBack()
                     }
                     else {
                         Toast.makeText(context, "Please add more budget before adding expenses again.", Toast.LENGTH_LONG).show()
@@ -149,7 +149,18 @@ fun ExpenseEntryBody (
             shape = MaterialTheme.shapes.small,
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(text = stringResource(R.string.expense_entry_save))
+            Row (
+                modifier = Modifier.padding(10.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Save,
+                    contentDescription = null,
+                )
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(
+                    text = stringResource(R.string.expense_entry_save),
+                    style = MaterialTheme.typography.bodyLarge)
+            }
         }
     }
 }
