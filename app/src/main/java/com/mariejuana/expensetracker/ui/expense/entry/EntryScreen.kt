@@ -17,9 +17,18 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import android.widget.DatePicker
 import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Surface
@@ -70,7 +79,6 @@ fun ExpenseEntryScreen(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val currentBudget by viewModel.currentBudget.collectAsState()
-    var showSnackbar by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     Scaffold (
@@ -149,6 +157,20 @@ fun ExpenseInputForm(
     onValueChange: (ExpenseDetails, TransactionDetails) -> Unit = { _, _ -> },
     enabled: Boolean = true
 ) {
+    var expanded by remember { mutableStateOf(false) }
+    val expenseTypes = listOf(
+        "Groceries",
+        "Rent",
+        "Utilities",
+        "Transportation",
+        "Entertainment",
+        "Insurance",
+        "Healthcare",
+        "Education",
+        "Travel",
+        "Others"
+    )
+
     Column (
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_medium))
@@ -169,22 +191,44 @@ fun ExpenseInputForm(
             enabled = enabled,
             singleLine = true
         )
-        OutlinedTextField(
-            value = expenseDetails.type,
-            onValueChange = { onValueChange(expenseDetails.copy(type = it), transactionDetails.copy(type = it)) },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-            label = { Text(stringResource(R.string.expense_entry_type)) },
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = MaterialTheme.colorScheme.surface,
-                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                disabledContainerColor = MaterialTheme.colorScheme.surface,
-                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
-            ),
-            modifier = Modifier.fillMaxWidth(),
-            enabled = enabled,
-            singleLine = true
-        )
+        Box {
+            OutlinedTextField(
+                value = expenseDetails.type,
+                onValueChange = { onValueChange(expenseDetails.copy(type = it), transactionDetails.copy(type = it)) },
+                label = { Text(stringResource(R.string.expense_entry_type)) },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedContainerColor = MaterialTheme.colorScheme.surface,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                    disabledContainerColor = MaterialTheme.colorScheme.surface,
+                    focusedBorderColor = MaterialTheme.colorScheme.primary,
+                    unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
+                ),
+                modifier = Modifier.fillMaxWidth().clickable { expanded = !expanded },
+                enabled = enabled,
+                singleLine = true,
+                trailingIcon = {
+                    IconButton(onClick = { expanded = !expanded }) {
+                        Icon(Icons.Rounded.ArrowDropDown, contentDescription = null)
+                    }
+                },
+                readOnly = true
+            )
+            DropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+            ) {
+                expenseTypes.forEach { type ->
+                    DropdownMenuItem(
+                        text = {
+                            Text(text = type)
+                        },
+                        onClick = {
+                            onValueChange(expenseDetails.copy(type = type), transactionDetails.copy(type = type))
+                            expanded = false
+                        })
+                }
+            }
+        }
         OutlinedTextField(
             value = expenseDetails.amount,
             onValueChange = { onValueChange(expenseDetails.copy(amount = it), transactionDetails.copy(amount = it))},

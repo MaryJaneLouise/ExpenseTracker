@@ -97,7 +97,7 @@ fun BudgetScreen(
                         .padding(16.dp),
                 ) {
                     Text(
-                        text = "Available Budget:",
+                        text = stringResource(R.string.budget_available),
                         modifier = Modifier
                             .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp)
                             .align(Alignment.CenterHorizontally)
@@ -152,7 +152,7 @@ fun BudgetScreen(
                             .padding(start = 16.dp, end = 16.dp),
                         colors = deleteButtonColors
                     ) {
-                        Text(text = stringResource(R.string.transaction_delete_button),
+                        Text(text = stringResource(R.string.budget_history_delete_button),
                             style = MaterialTheme.typography.bodyLarge
                         )
                     }
@@ -179,7 +179,7 @@ fun BudgetScreen(
                     .padding(start = 16.dp, end = 16.dp, top = 25.dp, bottom = 8.dp),
             ) {
                 Text(
-                    text = "Transaction History",
+                    text = stringResource(R.string.budget_title),
                     style = MaterialTheme.typography.titleLarge
                 )
             }

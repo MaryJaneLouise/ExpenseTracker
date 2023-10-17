@@ -60,7 +60,6 @@ class EntryScreenViewModel (private val expenseRepository: ExpenseRepository) : 
         if (validateInput()) {
             expenseRepository.insertItem(expenseUiState.expenseDetails.toExpense())
             expenseRepository.updateBudget(updatedBudgetUiState.budgetDetails.toBudget())
-            expenseRepository.insertTransaction(expenseUiState.transactionDetails.toTransaction())
         }
     }
 
