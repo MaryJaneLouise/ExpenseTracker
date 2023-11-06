@@ -1,5 +1,6 @@
 package com.mariejuana.expensetracker.ui.budget
 
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -36,6 +37,11 @@ class BudgetScreenViewModel (private val expenseRepository: ExpenseRepository) :
 
     val currentBudget: StateFlow<Budget?> = expenseRepository.getCurrentBudgetStream()
         .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
+    fun loadSettingsForceDelete(context: Context) : Boolean {
+        val sharedPreferences = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+        return sharedPreferences.getBoolean("forceDialogDeleteOff", false)
+    }
 
     suspend fun deleteBudget() {
         expenseRepository.deleteBudget()

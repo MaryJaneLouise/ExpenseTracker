@@ -1,6 +1,7 @@
 package com.mariejuana.expensetracker.ui.theme
 
 import android.app.Activity
+import android.content.Context
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -80,6 +81,11 @@ private val DarkColorScheme = darkColorScheme(
     scrim = md_theme_dark_scrim,
 )
 
+fun loadSettingsForceDarkMode(context: Context) : Boolean {
+    val sharedPreferences = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+    return sharedPreferences.getBoolean("forceDarkMode", false)
+}
+
 @Composable
 fun ExpenseTrackerTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -90,13 +96,29 @@ fun ExpenseTrackerTheme(
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            if (darkTheme) dynamicDarkColorScheme(context)
+            else {
+                if (loadSettingsForceDarkMode(context)) {
+                    dynamicDarkColorScheme(context)
+                } else {
+                    dynamicLightColorScheme(context)
+                }
+            }
         }
 
         darkTheme -> DarkColorScheme
-        else -> LightColorScheme
+        else ->  {
+            val context = LocalContext.current
+            if (loadSettingsForceDarkMode(context)) {
+                DarkColorScheme
+            } else {
+                LightColorScheme
+            }
+        }
     }
     val view = LocalView.current
+    val context = LocalContext.current
+
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window

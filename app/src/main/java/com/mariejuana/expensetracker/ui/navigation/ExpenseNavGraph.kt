@@ -27,6 +27,8 @@ import com.mariejuana.expensetracker.ui.expense.yearly.YearlyDetailsScreen
 import com.mariejuana.expensetracker.ui.expense.yearly.YearlyScreenDestination
 import com.mariejuana.expensetracker.ui.home.HomeDestination
 import com.mariejuana.expensetracker.ui.home.HomeScreen
+import com.mariejuana.expensetracker.ui.settings.SettingScreen
+import com.mariejuana.expensetracker.ui.settings.SettingsDestination
 
 @Composable
 fun ExpenseNavHost(
@@ -43,7 +45,15 @@ fun ExpenseNavHost(
                 navigateToExpenseEntry = { navController.navigate(ExpenseEntryDestination.route) },
                 navigateToViewExpense = { navController.navigate(GeneralDetailsDestination.route) },
                 navigateBack = { navController.popBackStack() },
-                navigateToCurrentBudget = { navController.navigate(BudgetDestination.route) }
+                navigateToCurrentBudget = { navController.navigate(BudgetDestination.route) },
+                navigateToViewAllExpense = { navController.navigate(AllExpensesScreenDestination.route) },
+                navigateToSettings = { navController.navigate(SettingsDestination.route) }
+            )
+        }
+        composable(route = SettingsDestination.route) {
+            SettingScreen(
+                navigateBack = { navController.popBackStack() },
+                onNavigateUp = { navController.navigateUp() },
             )
         }
         composable(route = BudgetDestination.route) {

@@ -1,5 +1,6 @@
 package com.mariejuana.expensetracker.ui.expense.details.item
 
+import android.content.Context
 import android.icu.text.SimpleDateFormat
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -52,6 +53,11 @@ class ItemDetailsScreenViewModel (savedStateHandle: SavedStateHandle, private va
         val currentYear = SimpleDateFormat("yyyy", Locale.getDefault()).format(Date())
         emitAll(expenseRepository.getTotalAmountForYear(currentYear))
     }.stateIn(viewModelScope, SharingStarted.Eagerly, 0.0)
+
+    fun loadSettingsForceDelete(context: Context) : Boolean {
+        val sharedPreferences = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+        return sharedPreferences.getBoolean("forceDialogDeleteOff", false)
+    }
 
     suspend fun deleteItem() {
         expenseRepository.deleteItem(itemDetailsUiState.value.expenseDetails.toExpense())

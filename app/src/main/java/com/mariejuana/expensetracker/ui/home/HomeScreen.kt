@@ -11,11 +11,15 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material.icons.rounded.ReadMore
 import androidx.compose.material.icons.rounded.Repartition
+import androidx.compose.material.icons.rounded.SettingsSuggest
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -73,7 +77,9 @@ fun Date.toFormattedDateString(): String {
 fun HomeScreen(
     navigateToExpenseEntry: () -> Unit,
     navigateToViewExpense: () -> Unit,
+    navigateToViewAllExpense: () -> Unit,
     navigateToCurrentBudget: () -> Unit,
+    navigateToSettings: () -> Unit,
     navigateBack: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: HomeScreenViewModel = viewModel(factory = AppViewModelProvider.Factory),
@@ -105,6 +111,8 @@ fun HomeScreen(
 
     val currentBudget by viewModel.currentBudget.collectAsState()
 
+    var deleteConfirmationRequired by rememberSaveable { mutableStateOf(false) }
+
     Scaffold (
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
@@ -119,8 +127,7 @@ fun HomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .padding(innerPadding)
-                .fillMaxWidth()
-
+                .fillMaxWidth(),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -172,15 +179,8 @@ fun HomeScreen(
             }
             recentExpense?.let { RecentExpense(expense = it) }
 
-            var deleteConfirmationRequired by rememberSaveable { mutableStateOf(false) }
-
-            val deleteButtonColors = ButtonDefaults.textButtonColors(
-                containerColor = MaterialTheme.colorScheme.error,
-                contentColor = MaterialTheme.colorScheme.onError
-            )
-
             Column (
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)
             ) {
                 FilledTonalButton(
@@ -200,6 +200,26 @@ fun HomeScreen(
                         Spacer(modifier = Modifier.width(16.dp))
                         Text(
                             text = stringResource(R.string.expense_entry_button),
+                            style = MaterialTheme.typography.titleMedium)
+                    }
+                }
+                FilledTonalButton(
+                    onClick = navigateToViewAllExpense,
+                    shape = MaterialTheme.shapes.small,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 16.dp, end = 16.dp)
+                ) {
+                    Row (
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.ReadMore,
+                            contentDescription = null,
+                        )
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Text(
+                            text = stringResource(R.string.expense_view_all_button),
                             style = MaterialTheme.typography.titleMedium)
                     }
                 }
@@ -224,28 +244,48 @@ fun HomeScreen(
                     }
                 }
                 FilledTonalButton(
-                    onClick = { deleteConfirmationRequired = true },
+                    onClick = navigateToSettings,
                     shape = MaterialTheme.shapes.small,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 16.dp, end = 16.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.errorContainer,
-                        contentColor = MaterialTheme.colorScheme.onErrorContainer
-                    )
+                        .padding(start = 16.dp, end = 16.dp)
                 ) {
                     Row (
                         modifier = Modifier.padding(16.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Rounded.Delete,
+                            imageVector = Icons.Rounded.SettingsSuggest,
                             contentDescription = null,
                         )
                         Spacer(modifier = Modifier.width(16.dp))
-                        Text(text = stringResource(R.string.delete_all_button),
+                        Text(
+                            text = stringResource(R.string.setting_title),
                             style = MaterialTheme.typography.titleMedium)
                     }
                 }
+//                FilledTonalButton(
+//                    onClick = { deleteConfirmationRequired = true },
+//                    shape = MaterialTheme.shapes.small,
+//                    modifier = Modifier
+//                        .fillMaxWidth()
+//                        .padding(start = 16.dp, end = 16.dp),
+//                    colors = ButtonDefaults.buttonColors(
+//                        containerColor = MaterialTheme.colorScheme.errorContainer,
+//                        contentColor = MaterialTheme.colorScheme.onErrorContainer
+//                    )
+//                ) {
+//                    Row (
+//                        modifier = Modifier.padding(16.dp)
+//                    ) {
+//                        Icon(
+//                            imageVector = Icons.Rounded.Delete,
+//                            contentDescription = null,
+//                        )
+//                        Spacer(modifier = Modifier.width(16.dp))
+//                        Text(text = stringResource(R.string.delete_all_button),
+//                            style = MaterialTheme.typography.titleMedium)
+//                    }
+//                }
             }
 
 

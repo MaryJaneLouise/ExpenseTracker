@@ -24,16 +24,21 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DeleteForever
 import androidx.compose.material.icons.rounded.Save
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
@@ -72,6 +77,8 @@ fun BudgetEntryScreen(
     val coroutineScope = rememberCoroutineScope()
     val currentBudget by viewModel.currentBudget.collectAsState()
 
+    val context = LocalContext.current
+
     Scaffold (
         topBar = {
             ExpenseTopAppBar(
@@ -82,22 +89,9 @@ fun BudgetEntryScreen(
         }
     ) {  innerPadding ->
             BudgetEntryBody(
+                navigateBack = navigateBack,
                 budgetUiState = viewModel.budgetUiState,
                 onItemValueChange = viewModel::updateUiState,
-                onSaveClick = {
-                    val newAmount = viewModel.budgetUiState.budgetDetails.amount.toDouble()
-                    if (currentBudget?.amount != null) {
-                        coroutineScope.launch {
-                            viewModel.addAndUpdateBudget(newAmount)
-                            navigateBack()
-                        }
-                    } else {
-                        coroutineScope.launch {
-                            viewModel.saveBudget()
-                            navigateBack()
-                        }
-                    }
-                },
                 modifier = Modifier
                     .padding(innerPadding)
                     .verticalScroll(rememberScrollState())
@@ -108,11 +102,18 @@ fun BudgetEntryScreen(
 
 @Composable
 fun BudgetEntryBody (
+    navigateBack: () -> Unit,
     budgetUiState: BudgetUiState,
     onItemValueChange: (BudgetDetails, TransactionDetails) -> Unit,
-    onSaveClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: BudgetEntryScreenViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
+    val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val currentBudget by viewModel.currentBudget.collectAsState()
+
+    var insertConfirmationRequired by rememberSaveable { mutableStateOf(false) }
+
     Column (
         modifier = modifier.padding(dimensionResource(id = R.dimen.padding_medium)),
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_large))
@@ -124,7 +125,28 @@ fun BudgetEntryBody (
             modifier = Modifier.fillMaxWidth()
         )
         FilledTonalButton(
-            onClick = onSaveClick,
+            onClick = {
+               if (viewModel.loadSettingsForceInsert(context)) {
+                   insertConfirmationRequired = false
+
+                   val newAmount = viewModel.budgetUiState.budgetDetails.amount.toDouble()
+                   if (currentBudget?.amount != null) {
+                       coroutineScope.launch {
+                           viewModel.addAndUpdateBudget(newAmount)
+                           navigateBack()
+                           Toast.makeText(context, "Budget added successfully.", Toast.LENGTH_LONG).show()
+                       }
+                   } else {
+                       coroutineScope.launch {
+                           viewModel.saveBudget()
+                           navigateBack()
+                           Toast.makeText(context, "Budget added successfully.", Toast.LENGTH_LONG).show()
+                       }
+                   }
+               } else {
+                   insertConfirmationRequired = true
+               }
+            },
             enabled = budgetUiState.isEntryValid,
             shape = MaterialTheme.shapes.small,
             modifier = Modifier.fillMaxWidth()
@@ -141,6 +163,29 @@ fun BudgetEntryBody (
                     text = stringResource(R.string.expense_entry_save),
                     style = MaterialTheme.typography.bodyLarge)
             }
+        }
+
+        if (insertConfirmationRequired) {
+            InsertConfirmationDialog(
+                onInsertConfirm = {
+                    insertConfirmationRequired = false
+
+                    val newAmount = viewModel.budgetUiState.budgetDetails.amount.toDouble()
+                    if (currentBudget?.amount != null) {
+                        coroutineScope.launch {
+                            viewModel.addAndUpdateBudget(newAmount)
+                            navigateBack()
+                            Toast.makeText(context, "Budget added successfully.", Toast.LENGTH_LONG).show()
+                        }
+                    } else {
+                        coroutineScope.launch {
+                            viewModel.saveBudget()
+                            navigateBack()
+                            Toast.makeText(context, "Budget added successfully.", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                },
+                onInsertCancel = { insertConfirmationRequired = false })
         }
     }
 }
@@ -180,4 +225,26 @@ fun BudgetInputForm(
             singleLine = true
         )
     }
+}
+
+@Composable
+private fun InsertConfirmationDialog(
+    onInsertConfirm: () -> Unit,
+    onInsertCancel: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    AlertDialog(onDismissRequest = { /* Do nothing */ },
+        title = { Text(stringResource(R.string.attention)) },
+        text = { Text(stringResource(R.string.insert_budget_question)) },
+        modifier = modifier,
+        dismissButton = {
+            TextButton(onClick = onInsertCancel) {
+                Text(text = stringResource(R.string.no))
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onInsertConfirm) {
+                Text(text = stringResource(R.string.yes))
+            }
+        })
 }

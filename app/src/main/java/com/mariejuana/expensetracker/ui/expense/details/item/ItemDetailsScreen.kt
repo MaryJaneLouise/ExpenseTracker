@@ -2,6 +2,7 @@ package com.mariejuana.expensetracker.ui.expense.details.item
 
 import android.annotation.SuppressLint
 import android.icu.text.SimpleDateFormat
+import android.widget.Toast
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -40,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -126,13 +128,15 @@ fun ExpenseDetailsScreen (
 private fun ExpenseDetailsBody(
     itemDetailsUiState: ItemDetailsUiState,
     onDelete: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: ItemDetailsScreenViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     Column(
         modifier = modifier.padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         var deleteConfirmationRequired by rememberSaveable { mutableStateOf(false) }
+        val context = LocalContext.current
 
         val deleteButtonColors = ButtonDefaults.textButtonColors(
             containerColor = MaterialTheme.colorScheme.errorContainer,
@@ -147,7 +151,15 @@ private fun ExpenseDetailsBody(
         FilledTonalButton(
             shape = MaterialTheme.shapes.small,
             modifier = Modifier.fillMaxWidth(),
-            onClick = { deleteConfirmationRequired = true },
+            onClick = {
+                if (viewModel.loadSettingsForceDelete(context)) {
+                    deleteConfirmationRequired = false
+                    onDelete()
+                    Toast.makeText(context, "Expense deleted successfully.", Toast.LENGTH_LONG).show()
+                } else {
+                    deleteConfirmationRequired = true
+                }
+            },
             colors = deleteButtonColors
         ) {
             Row (
@@ -167,6 +179,7 @@ private fun ExpenseDetailsBody(
             DeleteConfirmationDialog(onDeleteConfirm = {
                 deleteConfirmationRequired = false
                 onDelete()
+                Toast.makeText(context, "Expense deleted successfully.", Toast.LENGTH_LONG).show()
             },
                 onDeleteCancel = { deleteConfirmationRequired = false },
                 modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_medium))

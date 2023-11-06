@@ -58,7 +58,10 @@ fun YearlyDetailsScreen (
     val currentYear = SimpleDateFormat("yyyy", Locale.getDefault()).format(Date()).toInt()
 
     val startYear = 2014
-    val endYear = SimpleDateFormat("yyyy", Locale.getDefault()).format(Date()).toInt()
+    var endYear = SimpleDateFormat("yyyy", Locale.getDefault()).format(Date()).toInt()
+    if (endYear > 2015) {
+        endYear = 2023
+    }
     val totalYears = endYear - startYear
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 

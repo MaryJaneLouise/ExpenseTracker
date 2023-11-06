@@ -11,6 +11,8 @@
     <string name="delete_all_transac_question">Are you sure you want to delete all of your transaction history?\nThis cannot be undone.</string>
     <string name="delete_all_budget_question">Are you sure you want to delete your budget?\nThis cannot be undone.</string>
     <string name="delete_all_question">Are you sure you want to delete all of your data here?\nThis cannot be undone.</string>
+    <string name="insert_expense_question">Are you sure you want to insert this expense?</string>
+    <string name="insert_budget_question">Are you sure you want to insert this budget?</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
 
@@ -22,7 +24,7 @@
 
     <!-- HomeScreen -->
     <string name="expense_entry_button">Add expense</string>
-    <string name="expense_view">View expenses</string>
+    <string name="expense_view">View expenses report</string>
     <string name="expense_view_1">Update expense</string>
     <string name="delete_all_button">Clear all data</string>
 
@@ -31,6 +33,14 @@
     <string name="expense_view_month_button">View expenses per month</string>
     <string name="expense_view_year_button">View expenses per year</string>
     <string name="expenses_delete_all">Delete all expenses</string>
+
+    <!-- Settings Screen -->
+    <string name="setting_title">Quick Settings</string>
+    <string name="setting_enable_force_dialog_insert_off">Disable insert confirmation dialog</string>
+    <string name="setting_enable_force_dialog_delete_off">Disable delete confirmation dialog</string>
+    <string name="setting_enable_force_no_budget_required">Disable budget entry</string>
+    <string name="setting_enable_force_dark_mode">Force dark mode on this application\n(NOT YET IMPLEMENTED)</string>
+
 
     <!-- Titles for expense -->
     <string name="expense_update_title">Update expense</string>

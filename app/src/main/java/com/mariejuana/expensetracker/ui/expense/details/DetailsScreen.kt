@@ -2,6 +2,7 @@ package com.mariejuana.expensetracker.ui.expense.details
 
 import android.annotation.SuppressLint
 import android.icu.text.SimpleDateFormat
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -42,6 +43,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -81,6 +83,8 @@ fun GeneralDetailsScreen (
     viewModel: GeneralDetailsScreenViewModel = viewModel(factory = AppViewModelProvider.Factory),
 ) {
     val coroutineScope = rememberCoroutineScope()
+
+    val context = LocalContext.current
 
     val currentMonth = SimpleDateFormat("MMM", Locale.getDefault()).format(Date())
     val currentYear = SimpleDateFormat("yyyy", Locale.getDefault()).format(Date())
@@ -233,7 +237,16 @@ fun GeneralDetailsScreen (
                     }
                 }
                 FilledTonalButton(
-                    onClick = { deleteConfirmationRequired = true },
+                    onClick = { if (viewModel.loadSettingsForceDelete(context)) {
+                        deleteConfirmationRequired = false
+                        coroutineScope.launch {
+                            viewModel.deleteAllItem()
+                            navigateBack()
+                            Toast.makeText(context, "All expenses has been deleted successfully.", Toast.LENGTH_LONG).show()
+                        }
+                    } else {
+                        deleteConfirmationRequired = true
+                    }},
                     shape = MaterialTheme.shapes.small,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -264,6 +277,7 @@ fun GeneralDetailsScreen (
                         coroutineScope.launch {
                             viewModel.deleteAllItem()
                             navigateBack()
+                            Toast.makeText(context, "All expenses has been deleted successfully.", Toast.LENGTH_LONG).show()
                         }
                     },
                     onDeleteCancel = { deleteConfirmationRequired = false },

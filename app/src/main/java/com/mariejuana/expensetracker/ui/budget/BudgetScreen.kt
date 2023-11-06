@@ -1,6 +1,7 @@
 package com.mariejuana.expensetracker.ui.budget
 
 import android.annotation.SuppressLint
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -42,6 +43,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -77,6 +79,7 @@ fun BudgetScreen(
     val currentBudget by viewModel.currentBudget.collectAsState()
     val allTransactionHistory by viewModel.transactionFragmentUiState.collectAsState()
     val transactionUiState by viewModel.transactionFragmentUiState.collectAsState()
+    val context = LocalContext.current
 
     Scaffold (
         topBar = {
@@ -132,11 +135,6 @@ fun BudgetScreen(
             ) {
                 var deleteConfirmationRequiredTransaction by rememberSaveable { mutableStateOf(false) }
 
-                val deleteButtonColors = ButtonDefaults.textButtonColors(
-                    containerColor = MaterialTheme.colorScheme.error,
-                    contentColor = MaterialTheme.colorScheme.onError
-                )
-
                 Column (
                     verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)
                 ) {
@@ -162,7 +160,19 @@ fun BudgetScreen(
                         }
                     }
                     FilledTonalButton(
-                        onClick = { deleteConfirmationRequiredTransaction = true },
+                        onClick = {
+                            if (viewModel.loadSettingsForceDelete(context)) {
+                                deleteConfirmationRequiredTransaction = false
+
+                                coroutineScope.launch {
+                                    viewModel.deleteAllTransaction()
+                                    navigateBack()
+                                    Toast.makeText(context, "Budget history cleared successfully.", Toast.LENGTH_LONG).show()
+                                }
+                            } else {
+                                deleteConfirmationRequiredTransaction = true
+                            }
+                        },
                         shape = MaterialTheme.shapes.small,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -194,6 +204,7 @@ fun BudgetScreen(
                             coroutineScope.launch {
                                 viewModel.deleteAllTransaction()
                                 navigateBack()
+                                Toast.makeText(context, "Budget history cleared successfully.", Toast.LENGTH_LONG).show()
                             }
                         },
                         onDeleteCancel = { deleteConfirmationRequiredTransaction = false },

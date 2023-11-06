@@ -1,5 +1,6 @@
 package com.mariejuana.expensetracker.ui.budget.entry
 
+import android.content.Context
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -32,6 +33,11 @@ class BudgetEntryScreenViewModel (private val expenseRepository: ExpenseReposito
                 transactionDetails = transactionDetails,
                 isEntryValid = validateInput(budgetDetails)
             )
+    }
+
+    fun loadSettingsForceInsert(context: Context) : Boolean {
+        val sharedPreferences = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+        return sharedPreferences.getBoolean("forceDialogInsertOff", false)
     }
 
     suspend fun saveBudget() {

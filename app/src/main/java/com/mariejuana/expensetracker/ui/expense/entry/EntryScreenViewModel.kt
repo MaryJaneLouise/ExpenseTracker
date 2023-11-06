@@ -1,5 +1,6 @@
 package com.mariejuana.expensetracker.ui.expense.entry
 
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -68,7 +69,24 @@ class EntryScreenViewModel (private val expenseRepository: ExpenseRepository) : 
                 }
             }
         }
+    }
 
+    fun saveExpenseNoBudget() {
+        viewModelScope.launch {
+            if (validateInput()) {
+                expenseRepository.insertItem(expenseUiState.expenseDetails.toExpense())
+            }
+        }
+    }
+
+    fun loadSettingsForceInsert(context: Context) : Boolean {
+        val sharedPreferences = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+        return sharedPreferences.getBoolean("forceDialogInsertOff", false)
+    }
+
+    fun loadSettingsNoBudgetRequired(context: Context) : Boolean {
+        val sharedPreferences = context.getSharedPreferences("settings", Context.MODE_PRIVATE)
+        return sharedPreferences.getBoolean("forceNoBudget", false)
     }
 
     private fun validateInput(uiState: ExpenseDetails = expenseUiState.expenseDetails): Boolean {

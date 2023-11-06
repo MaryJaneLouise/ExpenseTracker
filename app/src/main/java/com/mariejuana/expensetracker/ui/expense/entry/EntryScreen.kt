@@ -28,10 +28,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material.icons.rounded.Save
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -46,6 +48,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -101,38 +104,28 @@ fun ExpenseEntryScreen(
         ExpenseEntryBody(
             expenseUiState = viewModel.expenseUiState,
             onItemValueChange = viewModel::updateUiState,
-            onSaveClick = {
-                val newAmount = viewModel.expenseUiState.expenseDetails.amount.toDouble()
-
-                if (currentBudget?.amount != null) {
-                    if ((currentBudget?.amount?.minus(newAmount))!! >= 0) {
-                        viewModel.saveExpense(newAmount)
-                        navigateBack()
-                    }
-                    else {
-                        Toast.makeText(context, "Please add more budget before adding expenses again.", Toast.LENGTH_LONG).show()
-                    }
-                } else {
-                    Toast.makeText(context, "Please add budget first.", Toast.LENGTH_LONG).show()
-                }
-            },
+            navigateBack = navigateBack,
             modifier = Modifier
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
                 .fillMaxWidth()
         )
-
-
     }
 }
 
 @Composable
 fun ExpenseEntryBody (
+    navigateBack: () -> Unit,
     expenseUiState: ExpenseUiState,
     onItemValueChange: (ExpenseDetails, TransactionDetails) -> Unit,
-    onSaveClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: EntryScreenViewModel = viewModel(factory = AppViewModelProvider.Factory)
 ) {
+    val context = LocalContext.current
+    val currentBudget by viewModel.currentBudget.collectAsState()
+
+    var insertConfirmationRequired by rememberSaveable { mutableStateOf(false) }
+
     Column (
         modifier = modifier.padding(dimensionResource(id = R.dimen.padding_medium)),
         verticalArrangement = Arrangement.spacedBy(dimensionResource(id = R.dimen.padding_large))
@@ -143,8 +136,35 @@ fun ExpenseEntryBody (
             onValueChange = onItemValueChange,
             modifier = Modifier.fillMaxWidth()
         )
-        Button(
-            onClick = onSaveClick,
+        FilledTonalButton(
+            onClick = {
+               if (viewModel.loadSettingsForceInsert(context)) {
+                   insertConfirmationRequired = false
+
+                   val newAmount = viewModel.expenseUiState.expenseDetails.amount.toDouble()
+
+                   if (viewModel.loadSettingsNoBudgetRequired(context)) {
+                       viewModel.saveExpenseNoBudget()
+                       navigateBack()
+                       Toast.makeText(context, "Expense added successfully.", Toast.LENGTH_LONG).show()
+                   } else {
+                       if (currentBudget?.amount != null) {
+                           if ((currentBudget?.amount?.minus(newAmount))!! >= 0) {
+                               viewModel.saveExpense(newAmount)
+                               navigateBack()
+                               Toast.makeText(context, "Expense added successfully.", Toast.LENGTH_LONG).show()
+                           }
+                           else {
+                               Toast.makeText(context, "Please add more budget before adding expenses again.", Toast.LENGTH_LONG).show()
+                           }
+                       } else {
+                           Toast.makeText(context, "Please add budget first.", Toast.LENGTH_LONG).show()
+                       }
+                   }
+               } else {
+                   insertConfirmationRequired = true
+               }
+            },
             enabled = expenseUiState.isEntryValid,
             shape = MaterialTheme.shapes.small,
             modifier = Modifier.fillMaxWidth()
@@ -161,6 +181,35 @@ fun ExpenseEntryBody (
                     text = stringResource(R.string.expense_entry_save),
                     style = MaterialTheme.typography.bodyLarge)
             }
+        }
+
+        if (insertConfirmationRequired) {
+            InsertConfirmationDialog(
+                onInsertConfirm = {
+                    insertConfirmationRequired = false
+
+                    val newAmount = viewModel.expenseUiState.expenseDetails.amount.toDouble()
+
+                    if (viewModel.loadSettingsNoBudgetRequired(context)) {
+                        viewModel.saveExpenseNoBudget()
+                        navigateBack()
+                        Toast.makeText(context, "Expense added successfully.", Toast.LENGTH_LONG).show()
+                    } else {
+                        if (currentBudget?.amount != null) {
+                            if ((currentBudget?.amount?.minus(newAmount))!! >= 0) {
+                                viewModel.saveExpense(newAmount)
+                                navigateBack()
+                                Toast.makeText(context, "Expense added successfully.", Toast.LENGTH_LONG).show()
+                            }
+                            else {
+                                Toast.makeText(context, "Please add more budget before adding expenses again.", Toast.LENGTH_LONG).show()
+                            }
+                        } else {
+                            Toast.makeText(context, "Please add budget first.", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                },
+                onInsertCancel = { insertConfirmationRequired = false })
         }
     }
 }
@@ -221,10 +270,12 @@ fun ExpenseInputForm(
                     focusedBorderColor = MaterialTheme.colorScheme.primary,
                     unfocusedBorderColor = MaterialTheme.colorScheme.onBackground,
                 ),
-                modifier = Modifier.fillMaxWidth().onGloballyPositioned { coordinates ->
-                    //This value is used to assign to the DropDown the same width
-                    textfieldSize = coordinates.size.toSize()
-                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .onGloballyPositioned { coordinates ->
+                        //This value is used to assign to the DropDown the same width
+                        textfieldSize = coordinates.size.toSize()
+                    },
                 enabled = enabled,
                 singleLine = true,
                 trailingIcon = {
@@ -274,4 +325,26 @@ fun ExpenseInputForm(
             singleLine = true
         )
     }
+}
+
+@Composable
+private fun InsertConfirmationDialog(
+    onInsertConfirm: () -> Unit,
+    onInsertCancel: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    AlertDialog(onDismissRequest = { /* Do nothing */ },
+        title = { Text(stringResource(R.string.attention)) },
+        text = { Text(stringResource(R.string.insert_expense_question)) },
+        modifier = modifier,
+        dismissButton = {
+            TextButton(onClick = onInsertCancel) {
+                Text(text = stringResource(R.string.no))
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = onInsertConfirm) {
+                Text(text = stringResource(R.string.yes))
+            }
+        })
 }

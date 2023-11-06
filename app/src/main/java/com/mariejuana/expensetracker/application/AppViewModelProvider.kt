@@ -16,6 +16,7 @@ import com.mariejuana.expensetracker.ui.expense.monthly.MonthlyScreenViewModel
 import com.mariejuana.expensetracker.ui.expense.monthly.per_month.PerMonthScreenViewModel
 import com.mariejuana.expensetracker.ui.expense.yearly.YearlyScreenViewModel
 import com.mariejuana.expensetracker.ui.home.HomeScreenViewModel
+import com.mariejuana.expensetracker.ui.settings.SettingScreenViewModel
 
 object AppViewModelProvider {
     val Factory = viewModelFactory {
@@ -60,6 +61,9 @@ object AppViewModelProvider {
 
         initializer {
             EntryScreenViewModel(expenseApplication().container.expenseRepository)
+        }
+        initializer {
+            SettingScreenViewModel(expenseApplication())
         }
 
 //        // Initializer for ItemDetailsViewModel
